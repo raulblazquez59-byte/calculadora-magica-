@@ -1,151 +1,659 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Calculadora">
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+      maximum-scale=1.0,user-scalable=no">
 <title>Calculadora</title>
 <style>
-:root{--bg:#000;--key:#333;--key2:#505050;--op:#ff9f0a;--text:#fff}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;height:100%;overflow:hidden}
-body{display:flex;justify-content:center}
-.app{width:min(100vw,430px);height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);background:#000}
-.display{height:34%;min-height:190px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px 18px;overflow:hidden}
-.value{font-size:clamp(58px,18vw,92px);font-weight:300;letter-spacing:-3px;white-space:nowrap;max-width:100%;overflow:hidden;text-align:right}
-.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-bottom:10px}
-button{border:0;border-radius:50%;aspect-ratio:1/1;background:var(--key);color:#fff;font-size:clamp(26px,8vw,36px);font-weight:400;font-family:inherit;touch-action:manipulation}
-button:active{filter:brightness(1.35)}
-button.function{background:#a5a5a5;color:#000}
-button.operator{background:var(--op);font-size:34px}
-button.operator.active{color:var(--op);background:#fff}
-button.zero{grid-column:span 2;aspect-ratio:auto;border-radius:50px;text-align:left;padding-left:30px}
-.small{position:fixed;left:10px;top:calc(env(safe-area-inset-top) + 5px);font-size:10px;color:#555;opacity:.0}
-#panel{position:fixed;inset:auto 12px calc(env(safe-area-inset-bottom) + 8px);background:#1c1c1e;color:#fff;border-radius:18px;padding:14px;display:none;font-size:14px;z-index:10;box-shadow:0 5px 30px #000}
-#panel label{display:block;margin:5px 0;color:#bbb}
-#target{width:100%;background:#2c2c2e;color:#fff;border:1px solid #555;border-radius:10px;padding:9px;font-size:16px}
-#panel .row{display:flex;gap:8px;margin-top:9px}
-#panel button{aspect-ratio:auto;border-radius:10px;padding:9px 12px;font-size:14px;background:#444}
-#panel button.primary{background:#ff9f0a;color:#000}
-.hint{font-size:12px;color:#aaa;margin-top:7px;line-height:1.3}
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,
+              "SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+body{
+  overflow:hidden;
+}
+.calculator{
+  width:100%;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:15px 12px calc(12px + env(safe-area-inset-bottom));
+}
+/* =========================
+   PANTALLA
+========================= */
+.display{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:10px 8px 18px;
+  overflow:hidden;
+}
+.history{
+  width:100%;
+  max-height:40%;
+  overflow-y:auto;
+  text-align:right;
+  color:#777;
+  font-size:19px;
+  line-height:1.45;
+  margin-bottom:8px;
+}
+.expression{
+  width:100%;
+  min-height:32px;
+  text-align:right;
+  color:#999;
+  font-size:25px;
+  white-space:nowrap;
+  overflow-x:auto;
+}
+.result{
+  width:100%;
+  text-align:right;
+  color:#fff;
+  font-size:clamp(48px,14vw,88px);
+  font-weight:300;
+  line-height:1;
+  white-space:nowrap;
+  overflow-x:auto;
+  margin-top:6px;
+}
+/* =========================
+   TECLADO
+========================= */
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  width:100%;
+}
+button{
+  border:0;
+  height:clamp(65px,17vw,90px);
+  border-radius:50%;
+  font-size:clamp(25px,7vw,36px);
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:transform .08s;
+}
+button:active{
+  transform:scale(.91);
+}
+.number{
+  background:#333;
+  color:#fff;
+}
+.function{
+  background:#a5a5a5;
+  color:#000;
+}
+.operator{
+  background:#ff9500;
+  color:#fff;
+}
+.operator.active{
+  background:#fff;
+  color:#ff9500;
+}
+.zero{
+  grid-column:span 2;
+  border-radius:50px;
+  text-align:left;
+  padding-left:28px;
+}
+/* =========================
+   PANEL DEL TRUCO
+========================= */
+.magic-panel{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:calc(100% - 30px);
+  max-width:430px;
+  background:#181818;
+  border-radius:24px;
+  padding:24px 20px;
+  box-shadow:0 15px 60px rgba(0,0,0,.7);
+  z-index:100;
+  display:none;
+}
+.magic-panel.show{
+  display:block;
+}
+.magic-title{
+  font-size:22px;
+  font-weight:600;
+  text-align:center;
+  margin-bottom:20px;
+}
+.magic-label{
+  color:#888;
+  font-size:14px;
+  margin-top:12px;
+}
+.magic-number{
+  font-size:28px;
+  text-align:center;
+  margin-top:5px;
+  word-break:break-all;
+}
+.magic-final{
+  font-size:32px;
+  text-align:center;
+  margin-top:5px;
+  font-weight:500;
+  word-break:break-all;
+}
+.close-button{
+  width:100%;
+  height:55px;
+  border-radius:18px;
+  background:#ff9500;
+  color:#fff;
+  font-size:20px;
+  margin-top:22px;
+}
+/* =========================
+   AVISO
+========================= */
+.notice{
+  position:fixed;
+  left:50%;
+  bottom:120px;
+  transform:translateX(-50%);
+  background:#222;
+  padding:12px 18px;
+  border-radius:15px;
+  font-size:15px;
+  color:#fff;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  z-index:50;
+  text-align:center;
+  width:max-content;
+  max-width:90%;
+}
+.notice.show{
+  opacity:1;
+}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="display"><div id="display" class="value">0</div></div>
-  <div class="keys">
+<div class="calculator">
+  <div class="display">
+    <div id="history" class="history"></div>
+    <div id="expression" class="expression"></div>
+    <div id="result" class="result">0</div>
+  </div>
+  <div class="keypad">
     <button class="function" onclick="clearAll()">AC</button>
     <button class="function" onclick="toggleSign()">±</button>
     <button class="function" onclick="percent()">%</button>
-    <button class="operator" data-op="÷" onclick="pressOp('÷')">÷</button>
-
-    <button onclick="digit('7')">7</button><button onclick="digit('8')">8</button><button onclick="digit('9')">9</button>
-    <button class="operator" data-op="×" onclick="pressOp('×')">×</button>
-
-    <button onclick="digit('4')">4</button><button onclick="digit('5')">5</button><button onclick="digit('6')">6</button>
-    <button class="operator" data-op="−" onclick="pressOp('−')">−</button>
-
-    <button onclick="digit('1')">1</button><button onclick="digit('2')">2</button><button onclick="digit('3')">3</button>
-    <button class="operator" data-op="+" id="plus" onclick="pressPlus()">+</button>
-
-    <button class="zero" onclick="digit('0')">0</button><button onclick="decimal()">.</button><button class="operator" onclick="equals()">=</button>
+    <button class="operator" data-op="/" onclick="operator('/')">÷</button>
+    <button class="number" onclick="number('7')">7</button>
+    <button class="number" onclick="number('8')">8</button>
+    <button class="number" onclick="number('9')">9</button>
+    <button class="operator" data-op="*" onclick="operator('*')">×</button>
+    <button class="number" onclick="number('4')">4</button>
+    <button class="number" onclick="number('5')">5</button>
+    <button class="number" onclick="number('6')">6</button>
+    <button class="operator" data-op="-" onclick="operator('-')">−</button>
+    <button class="number" onclick="number('1')">1</button>
+    <button class="number" onclick="number('2')">2</button>
+    <button class="number" onclick="number('3')">3</button>
+    <button class="operator" data-op="+" onclick="operator('+')">+</button>
+    <button class="number zero" onclick="number('0')">0</button>
+    <button class="number" onclick="decimal()">,</button>
+    <button class="operator" onclick="equals()">=</button>
   </div>
 </div>
-
-<div id="panel">
-  <b>Modo mago</b>
-  <label>Objetivo: fecha + hora actual</label>
-  <input id="target" readonly>
-  <div class="hint">Formato: día + mes + año (2 cifras) + hora + minuto. Ej.: 28/08/26 22:01 → 288262201.</div>
-  <div class="row"><button class="primary" onclick="closePanel()">Cerrar</button><button onclick="setCustom()">Objetivo manual</button></div>
+<!-- PANEL QUE SOLO NECESITAS MIRAR TÚ -->
+<div id="magicPanel" class="magic-panel">
+  <div class="magic-title">
+    🎩 Número final del truco
+  </div>
+  <div class="magic-label">
+    Número que llevabas
+  </div>
+  <div id="magicCurrent" class="magic-number">
+    0
+  </div>
+  <div class="magic-label">
+    NÚMERO QUE TIENES QUE DECIR
+  </div>
+  <div id="magicMissing" class="magic-number">
+    0
+  </div>
+  <div class="magic-label">
+    Resultado final
+  </div>
+  <div id="magicFinal" class="magic-final">
+    0
+  </div>
+  <div class="magic-label" style="text-align:center">
+    Fecha y hora
+  </div>
+  <div id="magicDate" class="magic-final">
+    --
+  </div>
+  <button class="close-button" onclick="closeMagic()">
+    Continuar
+  </button>
 </div>
-
+<div id="notice" class="notice"></div>
 <script>
-let cur="0", stored=null, op=null, waiting=false, justForced=false, lastPlus=0;
-const d=document.getElementById("display");
-
-function fmt(x){
-  if(!Number.isFinite(Number(x))) return "Error";
-  let s=String(x);
-  if(s.includes("e")) return s;
-  if(s.endsWith(".0")) s=s.slice(0,-2);
-  return s;
+/* =====================================================
+   ESTADO
+===================================================== */
+let current = "0";
+let previous = null;
+let currentOperator = null;
+let waitingForOperand = false;
+let expressionParts = [];
+let accumulatedTotal = null;
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+const resultEl =
+  document.getElementById("result");
+const expressionEl =
+  document.getElementById("expression");
+const historyEl =
+  document.getElementById("history");
+const magicPanel =
+  document.getElementById("magicPanel");
+const magicCurrent =
+  document.getElementById("magicCurrent");
+const magicMissing =
+  document.getElementById("magicMissing");
+const magicFinal =
+  document.getElementById("magicFinal");
+const magicDate =
+  document.getElementById("magicDate");
+const notice =
+  document.getElementById("notice");
+/* =====================================================
+   FORMATO
+===================================================== */
+function formatNumber(value){
+  if(!Number.isFinite(value)){
+    return "Error";
+  }
+  return value.toLocaleString("es-ES",{
+    maximumFractionDigits:10,
+    useGrouping:true
+  });
 }
-function render(){d.textContent=cur}
-function digit(n){
-  if(waiting || cur==="0" || justForced){cur=n;waiting=false;justForced=false}
-  else if(cur.replace("-","").replace(".","").length<12) cur+=n;
-  render();
+/* =====================================================
+   ACTUALIZAR PANTALLA
+===================================================== */
+function updateDisplay(){
+  if(current.includes(".")){
+    resultEl.textContent =
+      current.replace(".",",");
+  }else{
+    resultEl.textContent =
+      formatNumber(Number(current));
+  }
+  expressionEl.textContent =
+    expressionParts.join(" ");
 }
-function decimal(){if(waiting||justForced){cur="0.";waiting=false;justForced=false}else if(!cur.includes("."))cur+=".";render()}
-function clearAll(){cur="0";stored=null;op=null;waiting=false;justForced=false;render();setActive()}
-function toggleSign(){if(cur!=="0")cur=cur.startsWith("-")?cur.slice(1):"-"+cur;render()}
-function percent(){cur=String(Number(cur)/100);render()}
-function calc(a,b,o){
-  a=Number(a);b=Number(b);
-  if(o==="+")return a+b;if(o==="−")return a-b;if(o==="×")return a*b;if(o==="÷")return b===0?NaN:a/b;
+/* =====================================================
+   NÚMEROS
+===================================================== */
+function number(num){
+  if(current === "Error"){
+    current="0";
+  }
+  if(waitingForOperand){
+    current=num;
+    waitingForOperand=false;
+  }else{
+    if(current==="0"){
+      current=num;
+    }else{
+      current+=num;
+    }
+  }
+  updateDisplay();
 }
-function pressOp(o){
-  if(stored!==null && op && !waiting){stored=calc(stored,cur,op);cur=fmt(stored)}
-  else stored=Number(cur);
-  op=o;waiting=true;justForced=false;setActive();
+/* =====================================================
+   DECIMAL
+===================================================== */
+function decimal(){
+  if(waitingForOperand){
+    current="0.";
+    waitingForOperand=false;
+  }else if(!current.includes(".")){
+    current+=".";
+  }
+  updateDisplay();
 }
-function pressPlus(){
-  const now=Date.now();
-  const double=now-lastPlus<500;
-  lastPlus=now;
-  if(double && (op==="+" || op===null)){
-    forceTarget();
+/* =====================================================
+   OPERADORES
+===================================================== */
+function operator(op){
+  const value=Number(current);
+  if(currentOperator && waitingForOperand){
+    currentOperator=op;
+    expressionParts[
+      expressionParts.length-1
+    ]=operatorSymbol(op);
+    updateDisplay();
     return;
   }
-  pressOp("+");
+  if(previous===null){
+    previous=value;
+  }else if(currentOperator){
+    const calculated=
+      calculate(
+        previous,
+        value,
+        currentOperator
+      );
+    current=String(calculated);
+    previous=calculated;
+  }
+  currentOperator=op;
+  waitingForOperand=true;
+  expressionParts.push(
+    formatNumber(value)
+  );
+  expressionParts.push(
+    operatorSymbol(op)
+  );
+  updateDisplay();
+  document
+    .querySelectorAll(".operator")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+  const active=document.querySelector(
+    `.operator[data-op="${op}"]`
+  );
+  if(active){
+    active.classList.add("active");
+  }
 }
-function targetNumber(){
-  const n=new Date();
-  const day=n.getDate();
-  const month=n.getMonth()+1;
-  const yy=String(n.getFullYear()).slice(-2);
-  const hh=String(n.getHours()).padStart(2,"0");
-  const mm=String(n.getMinutes()).padStart(2,"0");
-  return `${day}${month}${yy}${hh}${mm}`;
+/* =====================================================
+   SÍMBOLOS
+===================================================== */
+function operatorSymbol(op){
+  if(op==="+") return "+";
+  if(op==="-") return "−";
+  if(op==="*") return "×";
+  if(op==="/") return "÷";
+  return op;
 }
-function forceTarget(){
-  // If a sum is already active, choose the exact next addend.
-  // If no sum is active, treat the current displayed value as the accumulated total.
-  const target=Number(targetNumber());
-  let base;
-  if(stored!==null && op==="+") base=stored;
-  else base=Number(cur);
-  const needed=target-base;
-  cur=fmt(needed);
-  op="+";
-  stored=base;
-  waiting=false;
-  justForced=true;
-  render();
-  setActive();
+/* =====================================================
+   CÁLCULO
+===================================================== */
+function calculate(a,b,op){
+  if(op==="+") return a+b;
+  if(op==="-") return a-b;
+  if(op==="*") return a*b;
+  if(op==="/"){
+    return b===0 ? NaN : a/b;
+  }
+  return b;
 }
+/* =====================================================
+   IGUAL
+===================================================== */
 function equals(){
-  if(stored===null||!op)return;
-  cur=fmt(calc(stored,cur,op));stored=null;op=null;waiting=false;justForced=false;setActive();
+  document
+    .querySelectorAll(".operator")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+  /*
+    Si hay una operación pendiente,
+    primero la terminamos.
+  */
+  if(currentOperator!==null &&
+     previous!==null){
+    const operand=Number(current);
+    const oldPrevious=previous;
+    const result=
+      calculate(
+        oldPrevious,
+        operand,
+        currentOperator
+      );
+    historyEl.innerHTML +=
+      `<div>
+        ${formatNumber(oldPrevious)}
+        ${operatorSymbol(currentOperator)}
+        ${formatNumber(operand)}
+        =
+        ${formatNumber(result)}
+      </div>`;
+    current=String(result);
+    /*
+      ESTE ES EL TOTAL QUE TENEMOS
+      ANTES DE AÑADIR EL NÚMERO FINAL.
+    */
+    accumulatedTotal=result;
+    previous=null;
+    currentOperator=null;
+    waitingForOperand=true;
+    expressionParts=[];
+    updateDisplay();
+    /*
+      Ahora comienza el truco.
+    */
+    ejecutarTruco();
+    return;
+  }
+  /*
+    Si no había operación pendiente,
+    usamos directamente el número actual.
+  */
+  accumulatedTotal=Number(current);
+  ejecutarTruco();
 }
-function setActive(){
-  document.querySelectorAll(".operator").forEach(x=>x.classList.toggle("active",x.dataset.op===op));
+/* =====================================================
+   OBTENER FECHA/HORA
+===================================================== */
+function getTarget(){
+  const now=new Date();
+  const day=
+    String(now.getDate()).padStart(2,"0");
+  const month=
+    String(now.getMonth()+1).padStart(2,"0");
+  const year=
+    String(now.getFullYear());
+  const hour=
+    String(now.getHours()).padStart(2,"0");
+  const minute=
+    String(now.getMinutes()).padStart(2,"0");
+  /*
+    IMPORTANTE:
+    DDMMYYYYHHMM
+    Ejemplo:
+    27/09/2026 01:45
+    270920260145
+  */
+  const targetString=
+    day+
+    month+
+    year+
+    hour+
+    minute;
+  return {
+    number:Number(targetString),
+    string:targetString,
+    readable:
+      `${day}/${month}/${year} ${hour}:${minute}`
+  };
 }
-document.addEventListener("keydown",e=>{
-  if(/[0-9]/.test(e.key))digit(e.key);
-  else if(e.key==="+")pressOp("+"); else if(e.key==="Enter"||e.key==="=")equals();
-  else if(e.key==="Escape")clearAll();
+/* =====================================================
+   TRUCO
+===================================================== */
+function ejecutarTruco(){
+  let currentTotal=
+    Number(accumulatedTotal);
+  if(!Number.isFinite(currentTotal)){
+    currentTotal=0;
+  }
+  const target=getTarget();
+  const targetNumber=
+    target.number;
+  /*
+    LA CIFRA QUE FALTA ES:
+    OBJETIVO - TOTAL ACTUAL
+  */
+  let missing=
+    targetNumber-currentTotal;
+  /*
+    Si por alguna razón el total ya es superior
+    al objetivo, mostramos un aviso en vez de
+    inventar un resultado.
+  */
+  if(missing<0){
+    showNotice(
+      "El número acumulado es demasiado alto para esta fecha."
+    );
+    return;
+  }
+  /*
+    Mostramos el número que tienes que decir.
+  */
+  magicCurrent.textContent=
+    formatNumber(currentTotal);
+  magicMissing.textContent=
+    String(Math.trunc(missing));
+  magicFinal.textContent=
+    target.string;
+  magicDate.textContent=
+    target.readable;
+  /*
+    También dejamos la operación preparada
+    visualmente en la calculadora.
+  */
+  expressionEl.textContent=
+    `${formatNumber(currentTotal)} + ${Math.trunc(missing)}`;
+  resultEl.textContent=
+    target.string;
+  /*
+    Abrimos el panel.
+  */
+  magicPanel.classList.add("show");
+}
+/* =====================================================
+   CERRAR PANEL
+===================================================== */
+function closeMagic(){
+  magicPanel.classList.remove("show");
+  showNotice(
+    "Número listo para decir: "+
+    magicMissing.textContent
+  );
+}
+/* =====================================================
+   AVISO
+===================================================== */
+function showNotice(text){
+  notice.textContent=text;
+  notice.classList.add("show");
+  setTimeout(()=>{
+    notice.classList.remove("show");
+  },3500);
+}
+/* =====================================================
+   AC
+===================================================== */
+function clearAll(){
+  current="0";
+  previous=null;
+  currentOperator=null;
+  waitingForOperand=false;
+  expressionParts=[];
+  accumulatedTotal=null;
+  historyEl.innerHTML="";
+  expressionEl.textContent="";
+  resultEl.textContent="0";
+  magicPanel.classList.remove("show");
+  document
+    .querySelectorAll(".operator")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+}
+/* =====================================================
+   +/- 
+===================================================== */
+function toggleSign(){
+  if(current==="0") return;
+  if(current.startsWith("-")){
+    current=current.substring(1);
+  }else{
+    current="-"+current;
+  }
+  updateDisplay();
+}
+/* =====================================================
+   %
+===================================================== */
+function percent(){
+  const value=Number(current);
+  current=String(value/100);
+  updateDisplay();
+}
+/* =====================================================
+   TECLADO
+===================================================== */
+document.addEventListener("keydown",function(e){
+  if(e.key>="0" && e.key<="9"){
+    number(e.key);
+  }
+  if(e.key==="."){
+    decimal();
+  }
+  if(e.key==="+"){
+    operator("+");
+  }
+  if(e.key==="-"){
+    operator("-");
+  }
+  if(e.key==="*"){
+    operator("*");
+  }
+  if(e.key==="/"){
+    e.preventDefault();
+    operator("/");
+  }
+  if(e.key==="Enter" || e.key==="="){
+    equals();
+  }
+  if(e.key==="Escape"){
+    clearAll();
+  }
+  if(e.key==="%"){
+    percent();
+  }
 });
-let lp=0;
-document.body.addEventListener("touchend",()=>{
-  // no-op; the + button uses its own double tap timing
-});
-setInterval(()=>{
-  document.getElementById("target").value=targetNumber();
-},250);
+/* =====================================================
+   INICIO
+===================================================== */
+updateDisplay();
 </script>
 </body>
 </html>
