@@ -182,7 +182,11 @@ function operator(op){
     if(previous===null){
         previous=value;
     }else if(currentOperator){
-        const calculated=calculate(previous,value,currentOperator);
+        const calculated=calculate(
+            previous,
+            value,
+            currentOperator
+        );
         current=String(calculated);
         previous=calculated;
     }
@@ -194,7 +198,9 @@ function operator(op){
     document.querySelectorAll(".operator").forEach(btn=>{
         btn.classList.remove("active");
     });
-    const active=document.querySelector(`.operator[data-op="${op}"]`);
+    const active=document.querySelector(
+        `.operator[data-op="${op}"]`
+    );
     if(active) active.classList.add("active");
 }
 function operatorSymbol(op){
@@ -212,7 +218,9 @@ function calculate(a,b,op){
     return b;
 }
 function equals(){
-    /* TERCER = */
+    /*
+     * TERCER =
+     */
     if(magicMode){
         const finalResult=magicBase+magicMissing;
         current=magicTargetString;
@@ -221,7 +229,12 @@ function equals(){
         waitingForOperand=true;
         expressionParts=[];
         expressionEl.textContent="";
-        resultEl.textContent=magicTargetString;
+        /*
+         * CORREGIDO:
+         * El resultado final también pasa por
+         * formatNumber(), manteniendo los separadores.
+         */
+        resultEl.textContent=formatNumber(Number(magicTargetString));
         accumulatedTotal=finalResult;
         magicMode=false;
         magicBase=null;
@@ -235,7 +248,9 @@ function equals(){
         });
         return;
     }
-    /* PRIMER = */
+    /*
+     * PRIMER =
+     */
     if(equalsStage===0){
         document.querySelectorAll(".operator").forEach(btn=>{
             btn.classList.remove("active");
@@ -248,11 +263,6 @@ function equals(){
                 operand,
                 currentOperator
             );
-            /*
-             * Se guarda la operación completa.
-             * Esta será la ÚNICA línea que podrá modificarse
-             * al pulsar el segundo "=".
-             */
             magicHistoryEntry=addHistory(
                 `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
             );
@@ -270,7 +280,9 @@ function equals(){
         equalsStage=1;
         return;
     }
-    /* SEGUNDO = */
+    /*
+     * SEGUNDO =
+     */
     if(equalsStage===1){
         ejecutarTruco();
         equalsStage=2;
@@ -293,7 +305,8 @@ function getTarget(){
     return{
         number:Number(targetString),
         string:targetString,
-        readable:`${day}/${month}/${year} ${hour}:${minute}`
+        readable:
+            `${day}/${month}/${year} ${hour}:${minute}`
     };
 }
 function ejecutarTruco(){
@@ -306,7 +319,9 @@ function ejecutarTruco(){
     const targetNumber=target.number;
     const missing=targetNumber-currentTotal;
     if(missing<0){
-        showNotice("El resultado actual es demasiado alto.");
+        showNotice(
+            "El resultado actual es demasiado alto."
+        );
         return;
     }
     magicMode=true;
@@ -315,22 +330,16 @@ function ejecutarTruco(){
     magicTarget=targetNumber;
     magicTargetString=target.string;
     /*
-     * IMPORTANTE:
-     * No se borra el historial.
-     * Solo se modifica la última operación,
-     * sustituyendo ÚNICAMENTE lo que aparece
-     * después del "=".
+     * Se mantiene toda la operación anterior.
      *
-     * Ejemplo:
-     * 125 + 300 = 425
-     * pasa a:
-     * 125 + 300 = 270920260215
+     * Solo cambia el resultado que aparece
+     * después del "=".
      */
     if(magicHistoryEntry){
         magicHistoryEntry.textContent=
             magicHistoryEntry.textContent.replace(
                 / = .*$/,
-                ` = ${String(missing)}`
+                ` = ${formatNumber(missing)}`
             );
     }
     current=String(missing);
@@ -339,7 +348,11 @@ function ejecutarTruco(){
     waitingForOperand=true;
     expressionParts=[];
     expressionEl.textContent="";
-    resultEl.textContent=String(missing);
+    /*
+     * CORREGIDO:
+     * El número secreto mantiene los separadores.
+     */
+    resultEl.textContent=formatNumber(missing);
 }
 function clearAll(){
     current="0";
@@ -355,7 +368,9 @@ function clearAll(){
     magicTargetString=null;
     equalsStage=0;
     magicHistoryEntry=null;
-    /* AC ES EL ÚNICO QUE BORRA EL HISTORIAL */
+    /*
+     * AC borra el historial.
+     */
     historyEl.innerHTML="";
     expressionEl.textContent="";
     resultEl.textContent="0";
@@ -423,3 +438,7 @@ updateDisplay();
 </script>
 </body>
 </html>
+
+Importante: ahora el número secreto del doble = se muestra mediante formatNumber(missing), así que no pierde los separadores mientras está esperando el = final. El historial conserva las operaciones anteriores y solo cambia el resultado de la última operación, como querías.
+
+Si por “puntos” te refieres específicamente a separadores de miles con punto (1.234.567) y no a decimales con coma, este código ya lo hace con configuración española.
