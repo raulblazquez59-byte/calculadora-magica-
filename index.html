@@ -144,11 +144,11 @@ button:active{
    CERO
    ========================= */
 .zero{
-    grid-column:span 2;
-    aspect-ratio:auto;
-    border-radius:999px;
-    justify-content:flex-start;
-    padding-left:calc(25% - 4px);
+    grid-column:span 1;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    justify-content:center;
+    padding-left:0;
 }
 /* =========================
    AVISO
@@ -287,13 +287,6 @@ let accumulatedTotal=null;
 /* =========================
    HISTORIAL
    ========================= */
-/*
-   Guardamos las entradas del historial
-   como elementos independientes.
-   La variable trickHistoryEntry señala
-   SOLAMENTE la operación que se ha
-   generado con el primer "=" del truco.
-*/
 let trickHistoryEntry=null;
 /* =========================
    MAGIA
@@ -303,11 +296,6 @@ let magicBase=null;
 let magicMissing=null;
 let magicTarget=null;
 let magicTargetString=null;
-/*
-0 = normal
-1 = primer =
-2 = segundo =
-*/
 let equalsStage=0;
 /* =========================
    ELEMENTOS
@@ -345,10 +333,6 @@ function addHistory(text){
     historyEl.appendChild(entry);
     return entry;
 }
-/*
-   Elimina únicamente la entrada
-   que se creó para el truco.
-*/
 function removeTrickHistory(){
     if(trickHistoryEntry){
         trickHistoryEntry.remove();
@@ -541,11 +525,7 @@ function calculate(a,b,op){
    IGUAL
    ========================= */
 function equals(){
-    /*
-    ==========================
-    TERCER =
-    ==========================
-    */
+    /* TERCER = */
     if(magicMode){
         const finalResult=
             magicBase+magicMissing;
@@ -558,10 +538,6 @@ function equals(){
         expressionEl.textContent="";
         resultEl.textContent=
             magicTargetString;
-        /*
-        El resultado final no entra
-        en el historial.
-        */
         accumulatedTotal=
             finalResult;
         magicMode=false;
@@ -577,11 +553,7 @@ function equals(){
             );
         return;
     }
-    /*
-    ==========================
-    PRIMER =
-    ==========================
-    */
+    /* PRIMER = */
     if(equalsStage===0){
         document
             .querySelectorAll(".operator")
@@ -602,13 +574,6 @@ function equals(){
                     operand,
                     currentOperator
                 );
-            /*
-            Añadimos la operación
-            normalmente al historial.
-            Guardamos su referencia
-            SOLO porque puede ser la
-            operación del truco.
-            */
             trickHistoryEntry=
                 addHistory(
                     `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
@@ -630,19 +595,8 @@ function equals(){
         equalsStage=1;
         return;
     }
-    /*
-    ==========================
-    SEGUNDO =
-    ==========================
-    */
+    /* SEGUNDO = */
     if(equalsStage===1){
-        /*
-        AQUÍ ESTÁ EL ÚNICO CAMBIO:
-        Quitamos del historial
-        exclusivamente la operación
-        que se acaba de realizar.
-        No tocamos ninguna anterior.
-        */
         removeTrickHistory();
         ejecutarTruco();
         equalsStage=2;
@@ -697,18 +651,10 @@ function ejecutarTruco(){
     if(!Number.isFinite(currentTotal)){
         return;
     }
-    /*
-    La fecha y hora se congelan
-    exactamente al pulsar el
-    segundo "=".
-    */
     const target=
         getTarget();
     const targetNumber=
         target.number;
-    /*
-    NÚMERO EXACTO QUE FALTA
-    */
     const missing=
         targetNumber-currentTotal;
     if(missing<0){
@@ -726,10 +672,6 @@ function ejecutarTruco(){
         targetNumber;
     magicTargetString=
         target.string;
-    /*
-    Mostrar solamente
-    el número que falta.
-    */
     current=
         String(missing);
     previous=null;
