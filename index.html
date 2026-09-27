@@ -36,9 +36,6 @@ body{
         calc(8px + env(safe-area-inset-bottom))
         12px;
 }
-/* =========================
-   PANTALLA
-   ========================= */
 .display{
     flex:1;
     min-height:0;
@@ -81,9 +78,6 @@ body{
     white-space:nowrap;
     overflow:hidden;
 }
-/* =========================
-   TECLADO
-   ========================= */
 .keypad{
     width:100%;
     display:grid;
@@ -92,9 +86,6 @@ body{
     gap:9px;
     flex:0 0 auto;
 }
-/* =========================
-   BOTONES
-   ========================= */
 button{
     width:100%;
     aspect-ratio:1/1;
@@ -141,7 +132,7 @@ button:active{
     color:#ff9500;
 }
 /* =========================
-   CERO
+   CERO — UNA SOLA CASILLA
    ========================= */
 .zero{
     grid-column:span 1;
@@ -150,9 +141,6 @@ button:active{
     justify-content:center;
     padding-left:0;
 }
-/* =========================
-   AVISO
-   ========================= */
 .notice{
     position:fixed;
     left:50%;
@@ -275,31 +263,19 @@ button:active{
 </div>
 <div id="notice" class="notice"></div>
 <script>
-/* =========================
-   VARIABLES
-   ========================= */
 let current="0";
 let previous=null;
 let currentOperator=null;
 let waitingForOperand=false;
 let expressionParts=[];
 let accumulatedTotal=null;
-/* =========================
-   HISTORIAL
-   ========================= */
 let trickHistoryEntry=null;
-/* =========================
-   MAGIA
-   ========================= */
 let magicMode=false;
 let magicBase=null;
 let magicMissing=null;
 let magicTarget=null;
 let magicTargetString=null;
 let equalsStage=0;
-/* =========================
-   ELEMENTOS
-   ========================= */
 const resultEl=
     document.getElementById("result");
 const expressionEl=
@@ -308,9 +284,6 @@ const historyEl=
     document.getElementById("history");
 const notice=
     document.getElementById("notice");
-/* =========================
-   FORMATO
-   ========================= */
 function formatNumber(value){
     if(!Number.isFinite(value)){
         return "Error";
@@ -323,9 +296,6 @@ function formatNumber(value){
         }
     );
 }
-/* =========================
-   HISTORIAL
-   ========================= */
 function addHistory(text){
     const entry=
         document.createElement("div");
@@ -339,9 +309,6 @@ function removeTrickHistory(){
         trickHistoryEntry=null;
     }
 }
-/* =========================
-   PANTALLA
-   ========================= */
 function updateDisplay(){
     if(current==="Error"){
         resultEl.textContent="Error";
@@ -355,9 +322,6 @@ function updateDisplay(){
     expressionEl.textContent=
         expressionParts.join(" ");
 }
-/* =========================
-   NÚMEROS
-   ========================= */
 function number(num){
     equalsStage=0;
     if(magicMode){
@@ -382,9 +346,6 @@ function number(num){
     }
     updateDisplay();
 }
-/* =========================
-   DECIMAL
-   ========================= */
 function decimal(){
     equalsStage=0;
     if(magicMode){
@@ -405,9 +366,6 @@ function decimal(){
     }
     updateDisplay();
 }
-/* =========================
-   BORRAR
-   ========================= */
 function deleteLast(){
     if(magicMode){
         magicMode=false;
@@ -431,9 +389,6 @@ function deleteLast(){
     }
     updateDisplay();
 }
-/* =========================
-   OPERADORES
-   ========================= */
 function operator(op){
     equalsStage=0;
     if(magicMode){
@@ -493,9 +448,6 @@ function operator(op){
         active.classList.add("active");
     }
 }
-/* =========================
-   SÍMBOLOS
-   ========================= */
 function operatorSymbol(op){
     if(op==="+") return "+";
     if(op==="-") return "−";
@@ -503,9 +455,6 @@ function operatorSymbol(op){
     if(op==="/") return "÷";
     return op;
 }
-/* =========================
-   CÁLCULO
-   ========================= */
 function calculate(a,b,op){
     if(op==="+"){
         return a+b;
@@ -521,9 +470,6 @@ function calculate(a,b,op){
     }
     return b;
 }
-/* =========================
-   IGUAL
-   ========================= */
 function equals(){
     /* TERCER = */
     if(magicMode){
@@ -603,9 +549,6 @@ function equals(){
         return;
     }
 }
-/* =========================
-   FECHA Y HORA
-   ========================= */
 function getTarget(){
     const now=
         new Date();
@@ -638,9 +581,6 @@ function getTarget(){
             `${day}/${month}/${year} ${hour}:${minute}`
     };
 }
-/* =========================
-   TRUCO
-   ========================= */
 function ejecutarTruco(){
     let currentTotal=
         Number(accumulatedTotal);
@@ -682,9 +622,6 @@ function ejecutarTruco(){
     resultEl.textContent=
         String(missing);
 }
-/* =========================
-   AC
-   ========================= */
 function clearAll(){
     current="0";
     previous=null;
@@ -708,9 +645,6 @@ function clearAll(){
             btn.classList.remove("active")
         );
 }
-/* =========================
-   +/-
-   ========================= */
 function toggleSign(){
     equalsStage=0;
     if(current==="0"){
@@ -725,9 +659,6 @@ function toggleSign(){
     }
     updateDisplay();
 }
-/* =========================
-   %
-   ========================= */
 function percent(){
     equalsStage=0;
     const value=
@@ -736,9 +667,6 @@ function percent(){
         String(value/100);
     updateDisplay();
 }
-/* =========================
-   AVISO
-   ========================= */
 function showNotice(text){
     notice.textContent=
         text;
@@ -750,9 +678,6 @@ function showNotice(text){
         2500
     );
 }
-/* =========================
-   TECLADO FÍSICO
-   ========================= */
 document.addEventListener(
     "keydown",
     function(e){
@@ -798,9 +723,6 @@ document.addEventListener(
         }
     }
 );
-/* =========================
-   INICIO
-   ========================= */
 updateDisplay();
 </script>
 </body>
