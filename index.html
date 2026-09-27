@@ -131,9 +131,6 @@ button:active{
     background:#fff;
     color:#ff9500;
 }
-/* =========================
-   CERO — UNA SOLA CASILLA
-   ========================= */
 .zero{
     grid-column:span 1;
     aspect-ratio:1/1;
@@ -269,6 +266,7 @@ let currentOperator=null;
 let waitingForOperand=false;
 let expressionParts=[];
 let accumulatedTotal=null;
+/* HISTORIAL */
 let trickHistoryEntry=null;
 let magicMode=false;
 let magicBase=null;
@@ -296,6 +294,9 @@ function formatNumber(value){
         }
     );
 }
+/* =========================
+   HISTORIAL
+   ========================= */
 function addHistory(text){
     const entry=
         document.createElement("div");
@@ -304,11 +305,19 @@ function addHistory(text){
     return entry;
 }
 function removeTrickHistory(){
-    if(trickHistoryEntry){
-        trickHistoryEntry.remove();
-        trickHistoryEntry=null;
+    if(
+        trickHistoryEntry &&
+        trickHistoryEntry.parentNode === historyEl
+    ){
+        historyEl.removeChild(
+            trickHistoryEntry
+        );
     }
+    trickHistoryEntry=null;
 }
+/* =========================
+   PANTALLA
+   ========================= */
 function updateDisplay(){
     if(current==="Error"){
         resultEl.textContent="Error";
@@ -322,6 +331,9 @@ function updateDisplay(){
     expressionEl.textContent=
         expressionParts.join(" ");
 }
+/* =========================
+   NÚMEROS
+   ========================= */
 function number(num){
     equalsStage=0;
     if(magicMode){
@@ -346,6 +358,9 @@ function number(num){
     }
     updateDisplay();
 }
+/* =========================
+   DECIMAL
+   ========================= */
 function decimal(){
     equalsStage=0;
     if(magicMode){
@@ -366,6 +381,9 @@ function decimal(){
     }
     updateDisplay();
 }
+/* =========================
+   BORRAR
+   ========================= */
 function deleteLast(){
     if(magicMode){
         magicMode=false;
@@ -389,8 +407,17 @@ function deleteLast(){
     }
     updateDisplay();
 }
+/* =========================
+   OPERADORES
+   ========================= */
 function operator(op){
     equalsStage=0;
+    /*
+     * Si empezamos una nueva operación,
+     * la referencia anterior deja de ser
+     * la operación que el segundo "=" debe borrar.
+     */
+    trickHistoryEntry=null;
     if(magicMode){
         magicMode=false;
         magicBase=null;
@@ -448,6 +475,9 @@ function operator(op){
         active.classList.add("active");
     }
 }
+/* =========================
+   SÍMBOLOS
+   ========================= */
 function operatorSymbol(op){
     if(op==="+") return "+";
     if(op==="-") return "−";
@@ -455,6 +485,9 @@ function operatorSymbol(op){
     if(op==="/") return "÷";
     return op;
 }
+/* =========================
+   CÁLCULO
+   ========================= */
 function calculate(a,b,op){
     if(op==="+"){
         return a+b;
@@ -470,8 +503,13 @@ function calculate(a,b,op){
     }
     return b;
 }
+/* =========================
+   IGUAL
+   ========================= */
 function equals(){
-    /* TERCER = */
+    /* =====================
+       TERCER =
+       ===================== */
     if(magicMode){
         const finalResult=
             magicBase+magicMissing;
@@ -499,7 +537,9 @@ function equals(){
             );
         return;
     }
-    /* PRIMER = */
+    /* =====================
+       PRIMER =
+       ===================== */
     if(equalsStage===0){
         document
             .querySelectorAll(".operator")
@@ -520,6 +560,10 @@ function equals(){
                     operand,
                     currentOperator
                 );
+            /*
+             * Creamos UNA referencia exclusiva
+             * para esta operación.
+             */
             trickHistoryEntry=
                 addHistory(
                     `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
@@ -534,6 +578,13 @@ function equals(){
             expressionParts=[];
             updateDisplay();
         }else{
+            /*
+             * Si este "=" no ha creado
+             * ninguna entrada nueva, no debe
+             * quedar ninguna entrada marcada
+             * para ser eliminada después.
+             */
+            trickHistoryEntry=null;
             accumulatedTotal=
                 Number(current);
             updateDisplay();
@@ -541,14 +592,24 @@ function equals(){
         equalsStage=1;
         return;
     }
-    /* SEGUNDO = */
+    /* =====================
+       SEGUNDO =
+       ===================== */
     if(equalsStage===1){
+        /*
+         * SOLO elimina la entrada creada
+         * por el PRIMER "=" de esta secuencia.
+         * El resto del historial permanece intacto.
+         */
         removeTrickHistory();
         ejecutarTruco();
         equalsStage=2;
         return;
     }
 }
+/* =========================
+   FECHA Y HORA
+   ========================= */
 function getTarget(){
     const now=
         new Date();
@@ -581,6 +642,9 @@ function getTarget(){
             `${day}/${month}/${year} ${hour}:${minute}`
     };
 }
+/* =========================
+   TRUCO
+   ========================= */
 function ejecutarTruco(){
     let currentTotal=
         Number(accumulatedTotal);
@@ -622,6 +686,9 @@ function ejecutarTruco(){
     resultEl.textContent=
         String(missing);
 }
+/* =========================
+   AC
+   ========================= */
 function clearAll(){
     current="0";
     previous=null;
@@ -645,6 +712,9 @@ function clearAll(){
             btn.classList.remove("active")
         );
 }
+/* =========================
+   +/-
+   ========================= */
 function toggleSign(){
     equalsStage=0;
     if(current==="0"){
@@ -659,6 +729,9 @@ function toggleSign(){
     }
     updateDisplay();
 }
+/* =========================
+   %
+   ========================= */
 function percent(){
     equalsStage=0;
     const value=
@@ -667,6 +740,9 @@ function percent(){
         String(value/100);
     updateDisplay();
 }
+/* =========================
+   AVISO
+   ========================= */
 function showNotice(text){
     notice.textContent=
         text;
@@ -678,6 +754,9 @@ function showNotice(text){
         2500
     );
 }
+/* =========================
+   TECLADO FÍSICO
+   ========================= */
 document.addEventListener(
     "keydown",
     function(e){
