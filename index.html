@@ -248,6 +248,11 @@ function equals(){
                 operand,
                 currentOperator
             );
+            /*
+             * Se guarda la operación completa.
+             * Esta será la ÚNICA línea que podrá modificarse
+             * al pulsar el segundo "=".
+             */
             magicHistoryEntry=addHistory(
                 `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
             );
@@ -310,8 +315,16 @@ function ejecutarTruco(){
     magicTarget=targetNumber;
     magicTargetString=target.string;
     /*
-     * SOLO SE SUSTITUYE EL RESULTADO DEL HISTORIAL.
-     * LA OPERACIÓN ORIGINAL SE MANTIENE.
+     * IMPORTANTE:
+     * No se borra el historial.
+     * Solo se modifica la última operación,
+     * sustituyendo ÚNICAMENTE lo que aparece
+     * después del "=".
+     *
+     * Ejemplo:
+     * 125 + 300 = 425
+     * pasa a:
+     * 125 + 300 = 270920260215
      */
     if(magicHistoryEntry){
         magicHistoryEntry.textContent=
