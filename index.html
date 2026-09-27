@@ -119,23 +119,19 @@ button{
 button:active{
     transform:scale(.92);
 }
-/* NÚMEROS */
 .number{
     background:#333;
     color:#fff;
 }
-/* FUNCIONES */
 .function{
     background:#a5a5a5;
     color:#000;
 }
-/* BORRAR */
 .delete{
     background:#a5a5a5;
     color:#000;
     font-size:clamp(22px,6vw,31px);
 }
-/* OPERADORES */
 .operator{
     background:#ff9500;
     color:#fff;
@@ -145,7 +141,7 @@ button:active{
     color:#ff9500;
 }
 /* =========================
-   CERO TIPO IPHONE
+   CERO
    ========================= */
 .zero{
     grid-column:span 2;
@@ -175,9 +171,6 @@ button:active{
 .notice.show{
     opacity:1;
 }
-/* =========================
-   PANTALLAS PEQUEÑAS
-   ========================= */
 @media(max-height:700px){
     .keypad{
         gap:7px;
@@ -189,9 +182,6 @@ button:active{
         font-size:26px;
     }
 }
-/* =========================
-   PANTALLAS GRANDES
-   ========================= */
 @media(min-height:850px){
     .keypad{
         gap:10px;
@@ -231,21 +221,9 @@ button:active{
             ÷
         </button>
         <!-- FILA 2 -->
-        <button
-            class="number"
-            onclick="number('7')">
-            7
-        </button>
-        <button
-            class="number"
-            onclick="number('8')">
-            8
-        </button>
-        <button
-            class="number"
-            onclick="number('9')">
-            9
-        </button>
+        <button class="number" onclick="number('7')">7</button>
+        <button class="number" onclick="number('8')">8</button>
+        <button class="number" onclick="number('9')">9</button>
         <button
             class="operator"
             data-op="*"
@@ -253,21 +231,9 @@ button:active{
             ×
         </button>
         <!-- FILA 3 -->
-        <button
-            class="number"
-            onclick="number('4')">
-            4
-        </button>
-        <button
-            class="number"
-            onclick="number('5')">
-            5
-        </button>
-        <button
-            class="number"
-            onclick="number('6')">
-            6
-        </button>
+        <button class="number" onclick="number('4')">4</button>
+        <button class="number" onclick="number('5')">5</button>
+        <button class="number" onclick="number('6')">6</button>
         <button
             class="operator"
             data-op="-"
@@ -275,21 +241,9 @@ button:active{
             −
         </button>
         <!-- FILA 4 -->
-        <button
-            class="number"
-            onclick="number('1')">
-            1
-        </button>
-        <button
-            class="number"
-            onclick="number('2')">
-            2
-        </button>
-        <button
-            class="number"
-            onclick="number('3')">
-            3
-        </button>
+        <button class="number" onclick="number('1')">1</button>
+        <button class="number" onclick="number('2')">2</button>
+        <button class="number" onclick="number('3')">3</button>
         <button
             class="operator"
             data-op="+"
@@ -331,6 +285,17 @@ let waitingForOperand=false;
 let expressionParts=[];
 let accumulatedTotal=null;
 /* =========================
+   HISTORIAL
+   ========================= */
+/*
+Guarda solamente la referencia
+a la última operación añadida.
+Así podemos borrar únicamente
+la operación del truco cuando
+se pulsa el segundo "=".
+*/
+let lastHistoryEntry=null;
+/* =========================
    MAGIA
    ========================= */
 let magicMode=false;
@@ -344,14 +309,17 @@ let magicTargetString=null;
 2 = segundo =
 */
 let equalsStage=0;
-let pendingHistoryText=null;
 /* =========================
    ELEMENTOS
    ========================= */
-const resultEl=document.getElementById("result");
-const expressionEl=document.getElementById("expression");
-const historyEl=document.getElementById("history");
-const notice=document.getElementById("notice");
+const resultEl=
+    document.getElementById("result");
+const expressionEl=
+    document.getElementById("expression");
+const historyEl=
+    document.getElementById("history");
+const notice=
+    document.getElementById("notice");
 /* =========================
    FORMATO
    ========================= */
@@ -368,16 +336,28 @@ function formatNumber(value){
     );
 }
 /* =========================
-   HISTORIAL
+   AÑADIR AL HISTORIAL
    ========================= */
-function savePendingHistory(){
-    if(pendingHistoryText===null){
-        return;
-    }
-    const entry=document.createElement("div");
-    entry.textContent=pendingHistoryText;
+function addHistory(text){
+    const entry=
+        document.createElement("div");
+    entry.textContent=text;
     historyEl.appendChild(entry);
-    pendingHistoryText=null;
+    /*
+    Esta es la operación que
+    podrá desaparecer al pulsar
+    el segundo "=".
+    */
+    lastHistoryEntry=entry;
+}
+/* =========================
+   BORRAR SOLO LA ÚLTIMA
+   ========================= */
+function removeLastHistory(){
+    if(lastHistoryEntry){
+        lastHistoryEntry.remove();
+        lastHistoryEntry=null;
+    }
 }
 /* =========================
    PANTALLA
@@ -386,7 +366,8 @@ function updateDisplay(){
     if(current==="Error"){
         resultEl.textContent="Error";
     }else if(current.includes(".")){
-        resultEl.textContent=current.replace(".",",");
+        resultEl.textContent=
+            current.replace(".",",");
     }else{
         resultEl.textContent=
             formatNumber(Number(current));
@@ -398,12 +379,11 @@ function updateDisplay(){
    NÚMEROS
    ========================= */
 function number(num){
-    if(
-        equalsStage!==1 &&
-        pendingHistoryText!==null
-    ){
-        savePendingHistory();
-    }
+    /*
+    Si estamos empezando una nueva
+    operación después de "=",
+    el historial anterior se queda.
+    */
     equalsStage=0;
     if(magicMode){
         magicMode=false;
@@ -431,12 +411,6 @@ function number(num){
    DECIMAL
    ========================= */
 function decimal(){
-    if(
-        equalsStage!==1 &&
-        pendingHistoryText!==null
-    ){
-        savePendingHistory();
-    }
     equalsStage=0;
     if(magicMode){
         magicMode=false;
@@ -477,7 +451,8 @@ function deleteLast(){
     if(current.length<=1){
         current="0";
     }else{
-        current=current.slice(0,-1);
+        current=
+            current.slice(0,-1);
     }
     updateDisplay();
 }
@@ -485,12 +460,6 @@ function deleteLast(){
    OPERADORES
    ========================= */
 function operator(op){
-    if(
-        equalsStage!==1 &&
-        pendingHistoryText!==null
-    ){
-        savePendingHistory();
-    }
     equalsStage=0;
     if(magicMode){
         magicMode=false;
@@ -499,7 +468,8 @@ function operator(op){
         magicTarget=null;
         magicTargetString=null;
     }
-    const value=Number(current);
+    const value=
+        Number(current);
     if(
         currentOperator &&
         waitingForOperand
@@ -507,7 +477,8 @@ function operator(op){
         currentOperator=op;
         expressionParts[
             expressionParts.length-1
-        ]=operatorSymbol(op);
+        ]=
+            operatorSymbol(op);
         updateDisplay();
         return;
     }
@@ -520,8 +491,10 @@ function operator(op){
                 value,
                 currentOperator
             );
-        current=String(calculated);
-        previous=calculated;
+        current=
+            String(calculated);
+        previous=
+            calculated;
     }
     currentOperator=op;
     waitingForOperand=true;
@@ -578,12 +551,15 @@ function calculate(a,b,op){
    ========================= */
 function equals(){
     /*
+    ==========================
     TERCER =
+    ==========================
     */
     if(magicMode){
         const finalResult=
             magicBase+magicMissing;
-        current=magicTargetString;
+        current=
+            magicTargetString;
         previous=null;
         currentOperator=null;
         waitingForOperand=true;
@@ -591,8 +567,12 @@ function equals(){
         expressionEl.textContent="";
         resultEl.textContent=
             magicTargetString;
-        pendingHistoryText=null;
-        accumulatedTotal=finalResult;
+        /*
+        No añadimos absolutamente
+        nada al historial.
+        */
+        accumulatedTotal=
+            finalResult;
         magicMode=false;
         magicBase=null;
         magicMissing=null;
@@ -607,7 +587,9 @@ function equals(){
         return;
     }
     /*
+    ==========================
     PRIMER =
+    ==========================
     */
     if(equalsStage===0){
         document
@@ -619,18 +601,27 @@ function equals(){
             currentOperator!==null &&
             previous!==null
         ){
-            const operand=Number(current);
-            const oldPrevious=previous;
+            const operand=
+                Number(current);
+            const oldPrevious=
+                previous;
             const result=
                 calculate(
                     oldPrevious,
                     operand,
                     currentOperator
                 );
-            pendingHistoryText=
-                `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`;
-            current=String(result);
-            accumulatedTotal=result;
+            /*
+            AHORA SE GUARDA
+            INMEDIATAMENTE EN HISTORIAL.
+            */
+            addHistory(
+                `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
+            );
+            current=
+                String(result);
+            accumulatedTotal=
+                result;
             previous=null;
             currentOperator=null;
             waitingForOperand=true;
@@ -645,9 +636,18 @@ function equals(){
         return;
     }
     /*
+    ==========================
     SEGUNDO =
+    ==========================
     */
     if(equalsStage===1){
+        /*
+        BORRAMOS ÚNICAMENTE
+        LA ÚLTIMA OPERACIÓN.
+        Todo el historial anterior
+        permanece intacto.
+        */
+        removeLastHistory();
         ejecutarTruco();
         equalsStage=2;
         return;
@@ -657,17 +657,22 @@ function equals(){
    FECHA Y HORA
    ========================= */
 function getTarget(){
-    const now=new Date();
+    const now=
+        new Date();
     const day=
-        String(now.getDate()).padStart(2,"0");
+        String(now.getDate())
+        .padStart(2,"0");
     const month=
-        String(now.getMonth()+1).padStart(2,"0");
+        String(now.getMonth()+1)
+        .padStart(2,"0");
     const year=
         String(now.getFullYear());
     const hour=
-        String(now.getHours()).padStart(2,"0");
+        String(now.getHours())
+        .padStart(2,"0");
     const minute=
-        String(now.getMinutes()).padStart(2,"0");
+        String(now.getMinutes())
+        .padStart(2,"0");
     const targetString=
         day+
         month+
@@ -675,8 +680,10 @@ function getTarget(){
         hour+
         minute;
     return{
-        number:Number(targetString),
-        string:targetString,
+        number:
+            Number(targetString),
+        string:
+            targetString,
         readable:
             `${day}/${month}/${year} ${hour}:${minute}`
     };
@@ -695,13 +702,16 @@ function ejecutarTruco(){
         return;
     }
     /*
-    CONGELAR FECHA Y HORA
+    La fecha y hora se congelan
+    exactamente al pulsar el
+    segundo "=".
     */
-    const target=getTarget();
+    const target=
+        getTarget();
     const targetNumber=
         target.number;
     /*
-    NÚMERO QUE FALTA
+    NÚMERO EXACTO QUE FALTA
     */
     const missing=
         targetNumber-currentTotal;
@@ -712,16 +722,20 @@ function ejecutarTruco(){
         return;
     }
     magicMode=true;
-    magicBase=currentTotal;
-    magicMissing=missing;
-    magicTarget=targetNumber;
+    magicBase=
+        currentTotal;
+    magicMissing=
+        missing;
+    magicTarget=
+        targetNumber;
     magicTargetString=
         target.string;
     /*
-    MOSTRAR SOLAMENTE
-    EL NÚMERO QUE FALTA
+    Mostramos únicamente
+    el número secreto.
     */
-    current=String(missing);
+    current=
+        String(missing);
     previous=null;
     currentOperator=null;
     waitingForOperand=true;
@@ -746,7 +760,11 @@ function clearAll(){
     magicTarget=null;
     magicTargetString=null;
     equalsStage=0;
-    pendingHistoryText=null;
+    lastHistoryEntry=null;
+    /*
+    AC sí borra todo el historial,
+    igual que una calculadora normal.
+    */
     historyEl.innerHTML="";
     expressionEl.textContent="";
     resultEl.textContent="0";
@@ -760,12 +778,6 @@ function clearAll(){
    +/-
    ========================= */
 function toggleSign(){
-    if(
-        equalsStage!==1 &&
-        pendingHistoryText!==null
-    ){
-        savePendingHistory();
-    }
     equalsStage=0;
     if(current==="0"){
         return;
@@ -774,7 +786,8 @@ function toggleSign(){
         current=
             current.substring(1);
     }else{
-        current="-"+current;
+        current=
+            "-"+current;
     }
     updateDisplay();
 }
@@ -782,14 +795,9 @@ function toggleSign(){
    %
    ========================= */
 function percent(){
-    if(
-        equalsStage!==1 &&
-        pendingHistoryText!==null
-    ){
-        savePendingHistory();
-    }
     equalsStage=0;
-    const value=Number(current);
+    const value=
+        Number(current);
     current=
         String(value/100);
     updateDisplay();
@@ -798,7 +806,8 @@ function percent(){
    AVISO
    ========================= */
 function showNotice(text){
-    notice.textContent=text;
+    notice.textContent=
+        text;
     notice.classList.add("show");
     setTimeout(
         ()=>{
