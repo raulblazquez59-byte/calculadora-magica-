@@ -437,18 +437,6 @@ let magicTargetString = null;
 let equalsStage = 0;
 
 
-/*
-   Guarda EXACTAMENTE la entrada
-   del historial creada por el primer =.
-   
-   Así, al activar el truco, solo
-   desaparece esa entrada y no
-   cualquier otra anterior.
-*/
-
-let lastEqualsHistoryEntry = null;
-
-
 /* =====================================================
    ELEMENTOS
 ===================================================== */
@@ -520,14 +508,6 @@ function number(num){
 
   equalsStage = 0;
 
-  /*
-   * Al empezar una nueva entrada,
-   * la referencia al historial del
-   * primer igual deja de ser válida.
-   */
-
-  lastEqualsHistoryEntry = null;
-
 
   if(magicMode){
 
@@ -580,8 +560,6 @@ function decimal(){
 
   equalsStage = 0;
 
-  lastEqualsHistoryEntry = null;
-
 
   if(magicMode){
 
@@ -626,8 +604,6 @@ function decimal(){
 function operator(op){
 
   equalsStage = 0;
-
-  lastEqualsHistoryEntry = null;
 
 
   if(magicMode){
@@ -778,8 +754,6 @@ function equals(){
    * Estamos en modo mágico.
    *
    * NO SE ESCRIBE NADA EN HISTORIAL.
-   *
-   * Solo aparece el resultado final.
    * =========================================
    */
 
@@ -809,9 +783,7 @@ function equals(){
 
 
     /*
-     * IMPORTANTE:
-     * No se añade absolutamente nada
-     * al historial.
+     * No se añade nada al historial.
      */
 
 
@@ -829,8 +801,6 @@ function equals(){
     magicTargetString = null;
 
     equalsStage = 0;
-
-    lastEqualsHistoryEntry = null;
 
 
     document
@@ -859,11 +829,6 @@ function equals(){
       });
 
 
-    /*
-     * Si existe una operación pendiente,
-     * la calculamos normalmente.
-     */
-
     if(
       currentOperator !== null &&
       previous !== null
@@ -883,40 +848,14 @@ function equals(){
         );
 
 
-      /*
-       * Creamos la entrada de historial
-       * como elemento independiente.
-       *
-       * Esto permite eliminar exactamente
-       * esta entrada al pulsar el segundo =.
-       */
-
-      const historyEntry =
-        document.createElement("div");
-
-
-      historyEntry.innerHTML =
-        `
+      historyEl.innerHTML +=
+        `<div>
           ${formatNumber(oldPrevious)}
           ${operatorSymbol(currentOperator)}
           ${formatNumber(operand)}
           =
           ${formatNumber(result)}
-        `;
-
-
-      historyEl.appendChild(
-        historyEntry
-      );
-
-
-      /*
-       * Guardamos la referencia
-       * a esta entrada concreta.
-       */
-
-      lastEqualsHistoryEntry =
-        historyEntry;
+        </div>`;
 
 
       current =
@@ -940,17 +879,8 @@ function equals(){
 
     }else{
 
-      /*
-       * Si no hay operación pendiente,
-       * no se crea ninguna entrada nueva
-       * en el historial.
-       */
-
       accumulatedTotal =
         Number(current);
-
-      lastEqualsHistoryEntry =
-        null;
 
       updateDisplay();
     }
@@ -1021,14 +951,6 @@ function getTarget(){
     ).padStart(2,"0");
 
 
-  /*
-   * DDMMYYYYHHMM
-   *
-   * Ejemplo:
-   *
-   * 270920260215
-   */
-
   const targetString =
     day +
     month +
@@ -1076,20 +998,21 @@ function ejecutarTruco(){
 
   /*
    * =========================================
-   * BORRAR DEL HISTORIAL EL RESULTADO
-   * DEL PRIMER =
+   * MUY IMPORTANTE
    *
-   * Solo eliminamos la entrada exacta
-   * que se creó con ese primer igual.
+   * AL PULSAR EL SEGUNDO =
+   * SE BORRA TODO EL HISTORIAL.
+   *
+   * De esta forma no queda visible:
+   *
+   * - el número del espectador
+   * - operaciones anteriores
+   * - el resultado del primer =
+   *
    * =========================================
    */
 
-  if(lastEqualsHistoryEntry){
-
-    lastEqualsHistoryEntry.remove();
-
-    lastEqualsHistoryEntry = null;
-  }
+  historyEl.innerHTML = "";
 
 
   /*
@@ -1106,8 +1029,6 @@ function ejecutarTruco(){
 
 
   /*
-   * CALCULAMOS:
-   *
    * OBJETIVO - TOTAL ACTUAL
    */
 
@@ -1116,7 +1037,7 @@ function ejecutarTruco(){
 
 
   /*
-   * Si el número actual ya es superior
+   * Si el resultado actual ya es superior
    * al objetivo, no se puede hacer
    * mediante una suma positiva.
    */
@@ -1210,8 +1131,6 @@ function clearAll(){
 
   equalsStage = 0;
 
-  lastEqualsHistoryEntry = null;
-
 
   historyEl.innerHTML = "";
 
@@ -1235,8 +1154,6 @@ function clearAll(){
 function toggleSign(){
 
   equalsStage = 0;
-
-  lastEqualsHistoryEntry = null;
 
 
   if(current === "0")
@@ -1266,8 +1183,6 @@ function toggleSign(){
 function percent(){
 
   equalsStage = 0;
-
-  lastEqualsHistoryEntry = null;
 
 
   const value =
