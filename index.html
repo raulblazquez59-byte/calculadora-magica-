@@ -145,6 +145,9 @@ button{
 button:active{
   transform:scale(.92);
 }
+/* ================================
+   BOTONES
+================================ */
 .number{
   background:#333;
   color:#fff;
@@ -153,6 +156,10 @@ button:active{
   background:#a5a5a5;
   color:#000;
 }
+/*
+  BOTÓN BORRAR
+  Está dentro del teclado.
+*/
 .delete{
   background:#a5a5a5;
   color:#000;
@@ -205,6 +212,9 @@ button:active{
 </head>
 <body>
 <div class="calculator">
+  <!-- ============================
+       PANTALLA
+  ============================= -->
   <div class="display">
     <div
       id="history"
@@ -220,6 +230,9 @@ button:active{
       0
     </div>
   </div>
+  <!-- ============================
+       TECLADO
+  ============================= -->
   <div class="keypad">
     <!-- FILA 1 -->
     <button
@@ -237,10 +250,11 @@ button:active{
       onclick="percent()">
       %
     </button>
+    <!-- BORRAR -->
     <button
       class="delete"
       onclick="deleteLast()"
-      aria-label="Borrar">
+      aria-label="Borrar último dígito">
       ⌫
     </button>
     <!-- FILA 2 -->
@@ -362,15 +376,12 @@ let magicTargetString = null;
 */
 let equalsStage = 0;
 /*
-  NUEVO SISTEMA DE HISTORIAL
-  La última operación NO se escribe
-  inmediatamente al pulsar el primer =.
-  Se guarda aquí temporalmente.
-  Si el usuario pulsa segundo =,
-  simplemente desaparece internamente
-  y el historial visible NO SE TOCA.
-  Si continúa usando la calculadora,
-  entonces se puede guardar.
+  IMPORTANTE:
+  La operación del primer "="
+  queda guardada SOLO en memoria.
+  NO se escribe todavía en pantalla.
+  Así, si llega el segundo "=",
+  no hay nada que borrar.
 */
 let pendingHistoryText = null;
 /* ==========================================
@@ -400,21 +411,20 @@ function formatNumber(value){
   );
 }
 /* ==========================================
-   HISTORIAL
+   GUARDAR HISTORIAL PENDIENTE
 ========================================== */
 function savePendingHistory(){
-  if(
-    pendingHistoryText !== null
-  ){
-    const historyEntry =
-      document.createElement("div");
-    historyEntry.textContent =
-      pendingHistoryText;
-    historyEl.appendChild(
-      historyEntry
-    );
-    pendingHistoryText = null;
+  if(pendingHistoryText === null){
+    return;
   }
+  const historyEntry =
+    document.createElement("div");
+  historyEntry.textContent =
+    pendingHistoryText;
+  historyEl.appendChild(
+    historyEntry
+  );
+  pendingHistoryText = null;
 }
 /* ==========================================
    PANTALLA
@@ -442,10 +452,10 @@ function updateDisplay(){
 ========================================== */
 function number(num){
   /*
-    Si había una operación pendiente
-    en el historial, ahora sí podemos
-    guardarla porque el usuario ha
-    continuado normalmente.
+    Si el usuario sigue haciendo
+    una operación normal después
+    del primer "=" guardamos
+    la operación pendiente.
   */
   if(
     equalsStage !== 1 &&
@@ -509,12 +519,13 @@ function decimal(){
   updateDisplay();
 }
 /* ==========================================
-   BORRAR ÚLTIMO DÍGITO
+   BOTÓN BORRAR
 ========================================== */
 function deleteLast(){
   /*
-    Borrar después de una operación
-    confirmada no debe tocar el historial.
+    El botón ⌫ solamente borra
+    el último dígito de la pantalla.
+    NO borra el historial.
   */
   if(magicMode){
     magicMode = false;
@@ -535,10 +546,7 @@ function deleteLast(){
   }
   else{
     current =
-      current.slice(
-        0,
-        -1
-      );
+      current.slice(0,-1);
   }
   updateDisplay();
 }
@@ -548,8 +556,8 @@ function deleteLast(){
 function operator(op){
   /*
     Si había una operación pendiente
-    y el usuario sigue normalmente,
-    ahora sí la guardamos.
+    y el usuario continúa normalmente,
+    ahora sí se añade al historial.
   */
   if(
     equalsStage !== 1 &&
@@ -620,14 +628,10 @@ function operator(op){
    SÍMBOLOS
 ========================================== */
 function operatorSymbol(op){
-  if(op === "+")
-    return "+";
-  if(op === "-")
-    return "−";
-  if(op === "*")
-    return "×";
-  if(op === "/")
-    return "÷";
+  if(op === "+") return "+";
+  if(op === "-") return "−";
+  if(op === "*") return "×";
+  if(op === "/") return "÷";
   return op;
 }
 /* ==========================================
@@ -668,12 +672,11 @@ function equals(){
     resultEl.textContent =
       magicTargetString;
     /*
-      IMPORTANTÍSIMO:
-      NO BORRAMOS HISTORIAL.
-      NO MODIFICAMOS HISTORIAL.
-      NO HACEMOS innerHTML.
-      NO QUITAMOS NINGUNA ENTRADA.
+      NO TOCAMOS EL HISTORIAL.
+      La operación que estaba pendiente
+      se descarta solamente de memoria.
     */
+    pendingHistoryText = null;
     accumulatedTotal =
       finalResult;
     magicMode = false;
@@ -682,11 +685,6 @@ function equals(){
     magicTarget = null;
     magicTargetString = null;
     equalsStage = 0;
-    /*
-      La operación pendiente desaparece
-      únicamente de la memoria.
-    */
-    pendingHistoryText = null;
     document
       .querySelectorAll(".operator")
       .forEach(btn=>{
@@ -718,11 +716,8 @@ function equals(){
           currentOperator
         );
       /*
-        AQUÍ ESTÁ EL CAMBIO IMPORTANTE.
-        NO escribimos todavía
-        nada en historyEl.
-        Lo guardamos únicamente
-        en memoria.
+        NO SE ESCRIBE EN EL HISTORIAL.
+        Solo se guarda en memoria.
       */
       pendingHistoryText =
         `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`;
@@ -809,7 +804,7 @@ function ejecutarTruco(){
     return;
   }
   /*
-    Capturamos la fecha y hora
+    La fecha y hora se congelan
     exactamente al segundo "=".
   */
   const target =
@@ -826,14 +821,11 @@ function ejecutarTruco(){
     return;
   }
   /*
-    AQUÍ NO SE TOCA EL HISTORIAL.
-    La operación del primer "="
-    todavía no estaba escrita en él.
-    Por tanto:
-      historyEl.innerHTML = ""
-    NO EXISTE.
-    removeChild()
-    TAMPOCO EXISTE.
+    IMPORTANTE:
+    NO SE TOCA historyEl.
+    NO innerHTML.
+    NO removeChild.
+    NO se borra ninguna línea.
   */
   magicMode = true;
   magicBase =
@@ -845,8 +837,9 @@ function ejecutarTruco(){
   magicTargetString =
     target.string;
   /*
-    Mostramos solamente
-    el número que falta.
+    Mostramos el número
+    que falta para llegar
+    a la fecha y hora.
   */
   current =
     String(missing);
@@ -876,8 +869,7 @@ function clearAll(){
   equalsStage = 0;
   pendingHistoryText = null;
   /*
-    ÚNICAMENTE AC borra todo
-    el historial.
+    SOLO AC BORRA TODO EL HISTORIAL.
   */
   historyEl.innerHTML = "";
   expressionEl.textContent = "";
