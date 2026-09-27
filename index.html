@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
+      content="width=device-width,
+      initial-scale=1.0,
       maximum-scale=1.0,
+      minimum-scale=1.0,
       user-scalable=no,
       viewport-fit=cover">
 
@@ -15,6 +17,7 @@
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
 }
 
 html,
@@ -23,37 +26,41 @@ body{
   padding:0;
   width:100%;
   height:100%;
+  overflow:hidden;
   background:#000;
   color:#fff;
-  font-family:-apple-system,
-              BlinkMacSystemFont,
-              "SF Pro Display",
-              "Helvetica Neue",
-              Arial,
-              sans-serif;
-  overflow:hidden;
-  overscroll-behavior:none;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 }
 
 body{
-  width:100vw;
-  height:100dvh;
+  min-height:100svh;
 }
+
+/* =========================
+   CALCULADORA
+========================= */
 
 .calculator{
   width:100%;
   height:100dvh;
-  min-height:100dvh;
+  min-height:100svh;
 
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
 
   padding:
     0
     12px
     calc(8px + env(safe-area-inset-bottom))
     12px;
+
+  background:#000;
 }
 
 /* =========================
@@ -63,7 +70,6 @@ body{
 .display{
   flex:1;
   min-height:0;
-  width:100%;
 
   display:flex;
   flex-direction:column;
@@ -72,40 +78,45 @@ body{
   padding:
     10px
     6px
-    12px;
+    14px;
 
   overflow:hidden;
 }
 
 .history{
   width:100%;
+
   max-height:30%;
+
   overflow:hidden;
 
   text-align:right;
 
   color:#777;
-  font-size:18px;
+
+  font-size:17px;
   line-height:1.35;
 
-  margin-bottom:4px;
+  margin-bottom:5px;
 }
 
 .expression{
   width:100%;
-  min-height:30px;
+
+  min-height:25px;
 
   text-align:right;
 
-  color:#999;
+  color:#888;
 
-  font-size:
-    clamp(20px,6vw,26px);
+  font-size:21px;
+  line-height:1.2;
 
   white-space:nowrap;
+
   overflow:hidden;
 
-  margin-bottom:2px;
+  margin-bottom:3px;
 }
 
 .result{
@@ -115,17 +126,23 @@ body{
 
   color:#fff;
 
-  font-size:
-    clamp(52px,17vw,92px);
+  font-size:clamp(
+    44px,
+    14vw,
+    86px
+  );
 
   font-weight:300;
 
   line-height:.95;
 
+  letter-spacing:-1px;
+
   white-space:nowrap;
+
   overflow:hidden;
 
-  margin:0;
+  text-overflow:clip;
 }
 
 /* =========================
@@ -138,19 +155,19 @@ body{
   display:grid;
 
   grid-template-columns:
-    repeat(4,minmax(0,1fr));
+    repeat(4, minmax(0,1fr));
 
-  gap:
-    clamp(7px,2.2vw,12px);
+  gap:9px;
 
-  padding:
-    0
-    0
-    4px;
+  flex:0 0 auto;
+
+  align-items:stretch;
 }
 
 button{
   width:100%;
+
+  min-width:0;
 
   aspect-ratio:1 / 1;
 
@@ -158,34 +175,46 @@ button{
 
   border-radius:50%;
 
-  padding:0;
-
   font-family:inherit;
 
-  font-size:
-    clamp(25px,7.4vw,38px);
+  font-size:clamp(
+    25px,
+    7vw,
+    36px
+  );
+
+  font-weight:400;
 
   cursor:pointer;
 
   touch-action:manipulation;
 
+  padding:0;
+
   transition:
-    transform .08s ease;
+    transform .08s ease,
+    filter .08s ease;
 }
 
 button:active{
-  transform:scale(.91);
+  transform:scale(.92);
 }
+
+/* Números */
 
 .number{
   background:#333;
   color:#fff;
 }
 
+/* Botones superiores */
+
 .function{
   background:#a5a5a5;
   color:#000;
 }
+
+/* Operadores */
 
 .operator{
   background:#ff9500;
@@ -197,153 +226,66 @@ button:active{
   color:#ff9500;
 }
 
+/* Cero */
+
 .zero{
   grid-column:span 2;
 
   aspect-ratio:auto;
 
-  height:auto;
-
-  border-radius:
-    999px;
+  border-radius:50px;
 
   text-align:left;
 
-  padding-left:
-    clamp(25px,7vw,34px);
+  padding-left:28px;
 }
 
 /* =========================
-   PANEL SECRETO
+   AVISO DISCRETO
+   Solo para errores reales.
 ========================= */
 
-.magic-panel{
+.notice{
   position:fixed;
 
   left:50%;
-  top:50%;
+
+  bottom:
+    calc(
+      100px +
+      env(safe-area-inset-bottom)
+    );
 
   transform:
-    translate(-50%,-50%);
+    translateX(-50%);
 
-  width:
-    calc(100% - 30px);
+  background:#222;
 
-  max-width:430px;
+  padding:11px 17px;
 
-  max-height:
-    calc(100dvh - 40px);
-
-  overflow:auto;
-
-  background:#181818;
-
-  border-radius:24px;
-
-  padding:
-    24px 20px;
-
-  box-shadow:
-    0 15px 60px
-    rgba(0,0,0,.7);
-
-  z-index:100;
-
-  display:none;
-}
-
-.magic-panel.show{
-  display:block;
-}
-
-.magic-title{
-  font-size:22px;
-  font-weight:600;
-
-  text-align:center;
-
-  margin-bottom:20px;
-}
-
-.magic-label{
-  color:#888;
+  border-radius:15px;
 
   font-size:14px;
 
-  margin-top:12px;
-
-  text-align:center;
-}
-
-.magic-number{
-  font-size:28px;
-
-  text-align:center;
-
-  margin-top:5px;
-
-  word-break:break-all;
-}
-
-.magic-final{
-  font-size:32px;
-
-  text-align:center;
-
-  margin-top:5px;
-
-  font-weight:500;
-
-  word-break:break-all;
-}
-
-.close-button{
-  width:100%;
-
-  height:55px;
-
-  border-radius:18px;
-
-  background:#ff9500;
-
   color:#fff;
 
-  font-size:20px;
+  opacity:0;
 
-  margin-top:22px;
+  pointer-events:none;
+
+  transition:opacity .2s;
+
+  z-index:50;
+
+  text-align:center;
+
+  width:max-content;
+
+  max-width:90%;
 }
 
-/* =========================
-   MÓVILES PEQUEÑOS
-========================= */
-
-@media (max-height:700px){
-
-  .calculator{
-    padding-bottom:
-      calc(5px + env(safe-area-inset-bottom));
-  }
-
-  .display{
-    padding-bottom:8px;
-  }
-
-  .keypad{
-    gap:6px;
-  }
-
-  .history{
-    font-size:15px;
-  }
-
-  .expression{
-    font-size:19px;
-  }
-
-  .result{
-    font-size:
-      clamp(44px,14vw,70px);
-  }
+.notice.show{
+  opacity:1;
 }
 </style>
 </head>
@@ -354,131 +296,155 @@ button:active{
 
   <div class="display">
 
-    <div id="history" class="history"></div>
+    <div
+      id="history"
+      class="history">
+    </div>
 
-    <div id="expression" class="expression"></div>
+    <div
+      id="expression"
+      class="expression">
+    </div>
 
-    <div id="result" class="result">0</div>
+    <div
+      id="result"
+      class="result">
+      0
+    </div>
 
   </div>
 
   <div class="keypad">
 
-    <button class="function"
-            onclick="clearAll()">AC</button>
+    <button
+      class="function"
+      onclick="clearAll()">
+      AC
+    </button>
 
-    <button class="function"
-            onclick="toggleSign()">±</button>
+    <button
+      class="function"
+      onclick="toggleSign()">
+      ±
+    </button>
 
-    <button class="function"
-            onclick="percent()">%</button>
+    <button
+      class="function"
+      onclick="percent()">
+      %
+    </button>
 
-    <button class="operator"
-            data-op="/"
-            onclick="operator('/')">÷</button>
+    <button
+      class="operator"
+      data-op="/"
+      onclick="operator('/')">
+      ÷
+    </button>
 
-    <button class="number"
-            onclick="number('7')">7</button>
 
-    <button class="number"
-            onclick="number('8')">8</button>
+    <button
+      class="number"
+      onclick="number('7')">
+      7
+    </button>
 
-    <button class="number"
-            onclick="number('9')">9</button>
+    <button
+      class="number"
+      onclick="number('8')">
+      8
+    </button>
 
-    <button class="operator"
-            data-op="*"
-            onclick="operator('*')">×</button>
+    <button
+      class="number"
+      onclick="number('9')">
+      9
+    </button>
 
-    <button class="number"
-            onclick="number('4')">4</button>
+    <button
+      class="operator"
+      data-op="*"
+      onclick="operator('*')">
+      ×
+    </button>
 
-    <button class="number"
-            onclick="number('5')">5</button>
 
-    <button class="number"
-            onclick="number('6')">6</button>
+    <button
+      class="number"
+      onclick="number('4')">
+      4
+    </button>
 
-    <button class="operator"
-            data-op="-"
-            onclick="operator('-')">−</button>
+    <button
+      class="number"
+      onclick="number('5')">
+      5
+    </button>
 
-    <button class="number"
-            onclick="number('1')">1</button>
+    <button
+      class="number"
+      onclick="number('6')">
+      6
+    </button>
 
-    <button class="number"
-            onclick="number('2')">2</button>
+    <button
+      class="operator"
+      data-op="-"
+      onclick="operator('-')">
+      −
+    </button>
 
-    <button class="number"
-            onclick="number('3')">3</button>
 
-    <button class="operator"
-            data-op="+"
-            onclick="operator('+')">+</button>
+    <button
+      class="number"
+      onclick="number('1')">
+      1
+    </button>
 
-    <button class="number zero"
-            onclick="number('0')">0</button>
+    <button
+      class="number"
+      onclick="number('2')">
+      2
+    </button>
 
-    <button class="number"
-            onclick="decimal()">,</button>
+    <button
+      class="number"
+      onclick="number('3')">
+      3
+    </button>
 
-    <button class="operator"
-            onclick="equals()">=</button>
+    <button
+      class="operator"
+      data-op="+"
+      onclick="operator('+')">
+      +
+    </button>
+
+
+    <button
+      class="number zero"
+      onclick="number('0')">
+      0
+    </button>
+
+    <button
+      class="number"
+      onclick="decimal()">
+      ,
+    </button>
+
+    <button
+      class="operator"
+      onclick="equals()">
+      =
+    </button>
 
   </div>
+
 </div>
 
-
-<!-- PANEL SECRETO -->
-
-<div id="magicPanel"
-     class="magic-panel">
-
-  <div class="magic-title">
-    🎩 Número final del truco
-  </div>
-
-  <div class="magic-label">
-    Número que llevabas
-  </div>
-
-  <div id="magicCurrent"
-       class="magic-number">
-    0
-  </div>
-
-  <div class="magic-label">
-    NÚMERO QUE TIENES QUE DECIR
-  </div>
-
-  <div id="magicMissing"
-       class="magic-number">
-    0
-  </div>
-
-  <div class="magic-label">
-    Resultado final
-  </div>
-
-  <div id="magicFinal"
-       class="magic-final">
-    0
-  </div>
-
-  <div class="magic-label">
-    Fecha y hora
-  </div>
-
-  <div id="magicDate"
-       class="magic-final">
-    --
-  </div>
-
-  <button class="close-button"
-          onclick="closeMagic()">
-    Continuar
-  </button>
-
+<div
+  id="notice"
+  class="notice">
 </div>
 
 
@@ -498,23 +464,29 @@ let waitingForOperand = false;
 
 let expressionParts = [];
 
+
+/*
+   ESTADO DEL TRUCO
+*/
+
 let accumulatedTotal = null;
 
-/*
-  Control del doble "="
-*/
-let lastEqualsTime = 0;
+let magicMode = false;
 
+let magicBase = null;
 
-/*
-  Objetivo guardado cuando se activa
-  el doble "=".
+let magicMissing = null;
 
-  Esto es importante porque si cambia
-  el minuto mientras haces el truco,
-  seguimos usando el mismo objetivo.
-*/
 let magicTarget = null;
+
+let magicTargetString = null;
+
+
+/*
+   CONTROL DEL DOBLE =
+*/
+
+let lastEqualsTime = 0;
 
 
 /* =====================================================
@@ -530,20 +502,8 @@ const expressionEl =
 const historyEl =
   document.getElementById("history");
 
-const magicPanel =
-  document.getElementById("magicPanel");
-
-const magicCurrent =
-  document.getElementById("magicCurrent");
-
-const magicMissing =
-  document.getElementById("magicMissing");
-
-const magicFinal =
-  document.getElementById("magicFinal");
-
-const magicDate =
-  document.getElementById("magicDate");
+const notice =
+  document.getElementById("notice");
 
 
 /* =====================================================
@@ -556,10 +516,13 @@ function formatNumber(value){
     return "Error";
   }
 
-  return value.toLocaleString("es-ES",{
-    maximumFractionDigits:10,
-    useGrouping:true
-  });
+  return value.toLocaleString(
+    "es-ES",
+    {
+      maximumFractionDigits:10,
+      useGrouping:true
+    }
+  );
 }
 
 
@@ -569,7 +532,11 @@ function formatNumber(value){
 
 function updateDisplay(){
 
-  if(current.includes(".")){
+  if(current === "Error"){
+
+    resultEl.textContent = "Error";
+
+  }else if(current.includes(".")){
 
     resultEl.textContent =
       current.replace(".",",");
@@ -577,8 +544,9 @@ function updateDisplay(){
   }else{
 
     resultEl.textContent =
-      formatNumber(Number(current));
-
+      formatNumber(
+        Number(current)
+      );
   }
 
   expressionEl.textContent =
@@ -592,28 +560,55 @@ function updateDisplay(){
 
 function number(num){
 
-  if(current === "Error"){
-    current="0";
+  if(magicMode){
+
+    /*
+      Si estamos en modo mágico,
+      los números empiezan una nueva entrada.
+    */
+
+    magicMode = false;
+
+    magicBase = null;
+
+    magicMissing = null;
+
+    magicTarget = null;
+
+    magicTargetString = null;
+
+    expressionParts = [];
+
+    current = "0";
+
+    waitingForOperand = false;
   }
+
+
+  if(current === "Error"){
+
+    current = "0";
+  }
+
 
   if(waitingForOperand){
 
-    current=num;
+    current = num;
 
-    waitingForOperand=false;
+    waitingForOperand = false;
 
   }else{
 
-    if(current==="0"){
+    if(current === "0"){
 
-      current=num;
+      current = num;
 
     }else{
 
-      current+=num;
-
+      current += num;
     }
   }
+
 
   updateDisplay();
 }
@@ -625,17 +620,37 @@ function number(num){
 
 function decimal(){
 
+  if(magicMode){
+
+    magicMode = false;
+
+    magicBase = null;
+
+    magicMissing = null;
+
+    magicTarget = null;
+
+    magicTargetString = null;
+
+    expressionParts = [];
+
+    current = "0";
+
+    waitingForOperand = false;
+  }
+
+
   if(waitingForOperand){
 
-    current="0.";
+    current = "0.";
 
-    waitingForOperand=false;
+    waitingForOperand = false;
 
   }else if(!current.includes(".")){
 
-    current+=".";
-
+    current += ".";
   }
+
 
   updateDisplay();
 }
@@ -647,26 +662,50 @@ function decimal(){
 
 function operator(op){
 
+  /*
+    Si estamos en modo mágico,
+    cualquier operación nueva cancela
+    el estado secreto.
+  */
+
+  if(magicMode){
+
+    magicMode = false;
+
+    magicBase = null;
+
+    magicMissing = null;
+
+    magicTarget = null;
+
+    magicTargetString = null;
+  }
+
+
   const value =
     Number(current);
 
-  if(currentOperator &&
-     waitingForOperand){
 
-    currentOperator=op;
+  if(
+    currentOperator &&
+    waitingForOperand
+  ){
+
+    currentOperator = op;
 
     expressionParts[
-      expressionParts.length-1
-    ]=operatorSymbol(op);
+      expressionParts.length - 1
+    ] = operatorSymbol(op);
 
     updateDisplay();
 
     return;
   }
 
-  if(previous===null){
 
-    previous=value;
+  if(previous === null){
+
+    previous = value;
 
   }else if(currentOperator){
 
@@ -684,9 +723,11 @@ function operator(op){
       calculated;
   }
 
-  currentOperator=op;
 
-  waitingForOperand=true;
+  currentOperator = op;
+
+  waitingForOperand = true;
+
 
   expressionParts.push(
     formatNumber(value)
@@ -696,7 +737,9 @@ function operator(op){
     operatorSymbol(op)
   );
 
+
   updateDisplay();
+
 
   document
     .querySelectorAll(".operator")
@@ -704,12 +747,15 @@ function operator(op){
       btn.classList.remove("active");
     });
 
+
   const active =
     document.querySelector(
       `.operator[data-op="${op}"]`
     );
 
+
   if(active){
+
     active.classList.add("active");
   }
 }
@@ -721,10 +767,13 @@ function operator(op){
 
 function operatorSymbol(op){
 
-  if(op==="+") return "+";
-  if(op==="-") return "−";
-  if(op==="*") return "×";
-  if(op==="/") return "÷";
+  if(op === "+") return "+";
+
+  if(op === "-") return "−";
+
+  if(op === "*") return "×";
+
+  if(op === "/") return "÷";
 
   return op;
 }
@@ -736,21 +785,19 @@ function operatorSymbol(op){
 
 function calculate(a,b,op){
 
-  if(op==="+"){
-    return a+b;
-  }
+  if(op === "+")
+    return a + b;
 
-  if(op==="-"){
-    return a-b;
-  }
+  if(op === "-")
+    return a - b;
 
-  if(op==="*"){
-    return a*b;
-  }
+  if(op === "*")
+    return a * b;
 
-  if(op==="/"){
-    return b===0 ? NaN : a/b;
-  }
+  if(op === "/")
+    return b === 0
+      ? NaN
+      : a / b;
 
   return b;
 }
@@ -765,15 +812,129 @@ function equals(){
   const now =
     Date.now();
 
+
   /*
-    Segundo "=" dentro de un segundo.
+    ==========================================
+    MODO MÁGICO
+    ==========================================
   */
+
+  if(magicMode){
+
+    /*
+      El número mostrado es el número
+      que falta.
+
+      Lo sumamos automáticamente
+      al número original.
+    */
+
+    const finalResult =
+      magicBase +
+      magicMissing;
+
+
+    /*
+      Mostramos EXACTAMENTE
+      la fecha/hora que congelamos
+      cuando se activó el truco.
+    */
+
+    current =
+      magicTargetString;
+
+
+    expressionParts = [];
+
+
+    expressionEl.textContent =
+      "";
+
+
+    resultEl.textContent =
+      magicTargetString;
+
+
+    historyEl.innerHTML +=
+      `<div>
+        ${formatNumber(magicBase)}
+        +
+        ${formatNumber(magicMissing)}
+        =
+        ${magicTargetString}
+      </div>`;
+
+
+    /*
+      Salimos del modo mágico.
+    */
+
+    magicMode = false;
+
+    magicBase = null;
+
+    magicMissing = null;
+
+    magicTarget = null;
+
+    magicTargetString = null;
+
+    accumulatedTotal =
+      Number(finalResult);
+
+    previous = null;
+
+    currentOperator = null;
+
+    waitingForOperand = true;
+
+    lastEqualsTime = 0;
+
+
+    document
+      .querySelectorAll(".operator")
+      .forEach(btn=>{
+        btn.classList.remove("active");
+      });
+
+
+    return;
+  }
+
+
+  /*
+    ==========================================
+    DOBLE =
+    ==========================================
+  */
+
   const doubleEquals =
-    (now-lastEqualsTime <= 1000);
+    now - lastEqualsTime < 700;
 
-  lastEqualsTime =
-    now;
 
+  /*
+    Si es doble igual y ya tenemos
+    un resultado, activamos el truco.
+  */
+
+  if(
+    doubleEquals &&
+    accumulatedTotal !== null
+  ){
+
+    ejecutarTruco();
+
+    lastEqualsTime = 0;
+
+    return;
+  }
+
+
+  /*
+    ==========================================
+    IGUAL NORMAL
+    ==========================================
+  */
 
   document
     .querySelectorAll(".operator")
@@ -782,111 +943,148 @@ function equals(){
     });
 
 
-  /*
-    Si hay operación pendiente,
-    la calculamos normalmente.
-  */
-
-  if(currentOperator!==null &&
-     previous!==null){
+  if(
+    currentOperator !== null &&
+    previous !== null
+  ){
 
     const operand =
       Number(current);
 
+
     const oldPrevious =
       previous;
 
-    const oldOperator =
-      currentOperator;
 
     const result =
       calculate(
         oldPrevious,
         operand,
-        oldOperator
+        currentOperator
       );
+
 
     historyEl.innerHTML +=
       `<div>
         ${formatNumber(oldPrevious)}
-        ${operatorSymbol(oldOperator)}
+        ${operatorSymbol(currentOperator)}
         ${formatNumber(operand)}
         =
         ${formatNumber(result)}
       </div>`;
 
+
     current =
       String(result);
+
+
+    /*
+      GUARDAMOS EL TOTAL
+      PARA EL DOBLE =
+    */
 
     accumulatedTotal =
       result;
 
-    previous=null;
 
-    currentOperator=null;
+    previous = null;
 
-    waitingForOperand=true;
+    currentOperator = null;
 
-    expressionParts=[];
+    waitingForOperand = true;
 
-    updateDisplay();
+    expressionParts = [];
 
-  }else{
-
-    accumulatedTotal =
-      Number(current);
 
     updateDisplay();
+
+
+    /*
+      El primer = queda registrado.
+    */
+
+    lastEqualsTime =
+      now;
+
+
+    return;
   }
 
 
   /*
-    SOLO EL SEGUNDO "="
-    activa el truco.
+    Si no había operación pendiente,
+    el número actual es el total.
   */
 
-  if(doubleEquals){
+  accumulatedTotal =
+    Number(current);
 
-    ejecutarTruco();
-  }
+
+  updateDisplay();
+
+
+  lastEqualsTime =
+    now;
 }
 
 
 /* =====================================================
-   FECHA/HORA OBJETIVO
+   FECHA Y HORA
 ===================================================== */
 
 function getTarget(){
 
+  /*
+    IMPORTANTE:
+
+    La fecha y hora se capturan
+    EXACTAMENTE cuando haces
+    el doble =.
+
+    Así no cambia mientras
+    realizas el truco.
+  */
+
   const now =
     new Date();
 
+
   const day =
-    String(now.getDate())
-      .padStart(2,"0");
+    String(
+      now.getDate()
+    ).padStart(2,"0");
+
 
   const month =
-    String(now.getMonth()+1)
-      .padStart(2,"0");
+    String(
+      now.getMonth() + 1
+    ).padStart(2,"0");
+
 
   const year =
-    String(now.getFullYear());
+    String(
+      now.getFullYear()
+    );
+
 
   const hour =
-    String(now.getHours())
-      .padStart(2,"0");
+    String(
+      now.getHours()
+    ).padStart(2,"0");
+
 
   const minute =
-    String(now.getMinutes())
-      .padStart(2,"0");
+    String(
+      now.getMinutes()
+    ).padStart(2,"0");
 
 
   /*
+    FORMATO:
+
     DDMMYYYYHHMM
 
     Ejemplo:
-
-    27/09/2026 02:15
 
     270920260215
   */
@@ -914,7 +1112,7 @@ function getTarget(){
 
 
 /* =====================================================
-   ACTIVAR TRUCO
+   TRUCO
 ===================================================== */
 
 function ejecutarTruco(){
@@ -925,129 +1123,106 @@ function ejecutarTruco(){
 
   if(!Number.isFinite(currentTotal)){
 
-    currentTotal=0;
+    currentTotal =
+      Number(current);
+
   }
 
 
-  /*
-    Guardamos la fecha/hora EXACTA
-    del momento de activar el truco.
-  */
-
-  magicTarget =
-    getTarget();
-
-
-  const targetNumber =
-    magicTarget.number;
-
-
-  /*
-    Número que falta:
-    
-    OBJETIVO - TOTAL ACTUAL
-  */
-
-  const missing =
-    targetNumber-currentTotal;
-
-
-  /*
-    Si el total es demasiado alto,
-    no hacemos nada extraño.
-  */
-
-  if(missing<0){
+  if(!Number.isFinite(currentTotal)){
 
     return;
   }
 
 
-  const missingInteger =
-    Math.trunc(missing);
+  /*
+    CONGELAMOS FECHA Y HORA
+  */
+
+  const target =
+    getTarget();
 
 
-  magicCurrent.textContent =
-    formatNumber(currentTotal);
-
-  magicMissing.textContent =
-    String(missingInteger);
-
-  magicFinal.textContent =
-    magicTarget.string;
-
-  magicDate.textContent =
-    magicTarget.readable;
+  const targetNumber =
+    target.number;
 
 
   /*
-    Dejamos preparado el número actual
-    para poder continuar la operación
-    después de cerrar el panel.
+    NÚMERO QUE FALTA:
+
+    OBJETIVO - TOTAL
+  */
+
+  const missing =
+    targetNumber -
+    currentTotal;
+
+
+  /*
+    Si el número ya es superior
+    al objetivo, no podemos realizar
+    el truco con una suma positiva.
+  */
+
+  if(missing < 0){
+
+    showNotice(
+      "El resultado actual es demasiado alto."
+    );
+
+    return;
+  }
+
+
+  /*
+    GUARDAMOS TODO EL ESTADO SECRETO.
+  */
+
+  magicMode = true;
+
+  magicBase =
+    currentTotal;
+
+  magicMissing =
+    missing;
+
+  magicTarget =
+    targetNumber;
+
+  magicTargetString =
+    target.string;
+
+
+  /*
+    AQUÍ ESTÁ LA PARTE IMPORTANTE:
+
+    Quitamos el número anterior
+    de la pantalla y ponemos
+    SOLAMENTE el número que falta.
   */
 
   current =
-    String(currentTotal);
+    String(missing);
 
-  previous =
-    currentTotal;
 
-  currentOperator =
-    null;
+  previous = null;
 
-  waitingForOperand =
-    true;
+  currentOperator = null;
 
-  expressionParts=[];
+  waitingForOperand = true;
 
-  updateDisplay();
+  expressionParts = [];
 
 
   /*
-    Abrimos el panel secreto.
+    No mostramos ninguna pista.
   */
 
-  magicPanel.classList.add("show");
-}
+  expressionEl.textContent =
+    "";
 
-
-/* =====================================================
-   CONTINUAR
-===================================================== */
-
-function closeMagic(){
-
-  magicPanel.classList.remove("show");
-
-  /*
-    Después de cerrar el panel,
-    la calculadora queda preparada para:
-
-    TOTAL + NÚMERO SECRETO = RESULTADO
-  */
-
-  if(magicTarget){
-
-    current =
-      String(
-        Number(magicCurrent.textContent
-          .replace(/\./g,"")
-          .replace(",","."))
-      );
-
-    previous =
-      Number(current);
-
-    currentOperator =
-      null;
-
-    waitingForOperand =
-      true;
-
-    expressionParts=[];
-
-    updateDisplay();
-  }
+  resultEl.textContent =
+    formatNumber(missing);
 }
 
 
@@ -1057,29 +1232,42 @@ function closeMagic(){
 
 function clearAll(){
 
-  current="0";
+  current = "0";
 
-  previous=null;
+  previous = null;
 
-  currentOperator=null;
+  currentOperator = null;
 
-  waitingForOperand=false;
+  waitingForOperand = false;
 
-  expressionParts=[];
+  expressionParts = [];
 
-  accumulatedTotal=null;
+  accumulatedTotal = null;
 
-  lastEqualsTime=0;
 
-  magicTarget=null;
+  /*
+    Limpiar estado secreto.
+  */
 
-  historyEl.innerHTML="";
+  magicMode = false;
 
-  expressionEl.textContent="";
+  magicBase = null;
 
-  resultEl.textContent="0";
+  magicMissing = null;
 
-  magicPanel.classList.remove("show");
+  magicTarget = null;
+
+  magicTargetString = null;
+
+
+  lastEqualsTime = 0;
+
+
+  historyEl.innerHTML = "";
+
+  expressionEl.textContent = "";
+
+  resultEl.textContent = "0";
 
 
   document
@@ -1096,9 +1284,9 @@ function clearAll(){
 
 function toggleSign(){
 
-  if(current==="0"){
+  if(current === "0")
     return;
-  }
+
 
   if(current.startsWith("-")){
 
@@ -1108,16 +1296,16 @@ function toggleSign(){
   }else{
 
     current =
-      "-"+current;
-
+      "-" + current;
   }
+
 
   updateDisplay();
 }
 
 
 /* =====================================================
-   PORCENTAJE
+   %
 ===================================================== */
 
 function percent(){
@@ -1125,10 +1313,30 @@ function percent(){
   const value =
     Number(current);
 
+
   current =
-    String(value/100);
+    String(value / 100);
+
 
   updateDisplay();
+}
+
+
+/* =====================================================
+   AVISO
+===================================================== */
+
+function showNotice(text){
+
+  notice.textContent =
+    text;
+
+  notice.classList.add("show");
+
+
+  setTimeout(()=>{
+    notice.classList.remove("show");
+  },2500);
 }
 
 
@@ -1140,55 +1348,66 @@ document.addEventListener(
   "keydown",
   function(e){
 
-    if(e.key>="0" &&
-       e.key<="9"){
+    if(
+      e.key >= "0" &&
+      e.key <= "9"
+    ){
 
       number(e.key);
     }
 
-    if(e.key==="."){
+
+    if(e.key === "."){
 
       decimal();
     }
 
-    if(e.key==="+"){
+
+    if(e.key === "+"){
 
       operator("+");
     }
 
-    if(e.key==="-"){
+
+    if(e.key === "-"){
 
       operator("-");
     }
 
-    if(e.key==="*"){
+
+    if(e.key === "*"){
 
       operator("*");
     }
 
-    if(e.key==="/"){
+
+    if(e.key === "/"){
 
       e.preventDefault();
 
       operator("/");
     }
 
-    if(e.key==="Enter" ||
-       e.key==="="){
+
+    if(
+      e.key === "Enter" ||
+      e.key === "="
+    ){
 
       equals();
     }
 
-    if(e.key==="Escape"){
+
+    if(e.key === "Escape"){
 
       clearAll();
     }
 
-    if(e.key==="%"){
+
+    if(e.key === "%"){
 
       percent();
     }
-
   }
 );
 
