@@ -241,11 +241,6 @@ function equals(){
                 operand,
                 currentOperator
             );
-            /*
-             * IMPORTANTE:
-             * El historial se añade y NO se guarda
-             * ninguna referencia para borrarlo.
-             */
             addHistory(
                 `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
             );
@@ -265,9 +260,7 @@ function equals(){
     }
     /* SEGUNDO = */
     if(equalsStage===1){
-        /*
-         * NO SE BORRA NADA DEL HISTORIAL.
-         */
+        /* EL HISTORIAL NO SE TOCA */
         ejecutarTruco();
         equalsStage=2;
         return;
@@ -331,9 +324,7 @@ function clearAll(){
     magicTarget=null;
     magicTargetString=null;
     equalsStage=0;
-    /*
-     * AC ES EL ÚNICO BOTÓN QUE BORRA EL HISTORIAL.
-     */
+    /* AC ES EL ÚNICO QUE BORRA EL HISTORIAL */
     historyEl.innerHTML="";
     expressionEl.textContent="";
     resultEl.textContent="0";
