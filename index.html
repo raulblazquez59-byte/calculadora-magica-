@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport"
 content="width=device-width,
 initial-scale=1.0,
@@ -10,17 +9,13 @@ maximum-scale=1.0,
 minimum-scale=1.0,
 user-scalable=no,
 viewport-fit=cover">
-
 <title>Calculadora</title>
-
 <style>
-
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;
 }
-
 html,
 body{
   margin:0;
@@ -30,7 +25,6 @@ body{
   overflow:hidden;
   background:#000;
   color:#fff;
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -39,593 +33,364 @@ body{
     Arial,
     sans-serif;
 }
-
 body{
   min-height:100svh;
 }
-
 .calculator{
   width:100%;
   height:100dvh;
   min-height:100svh;
-
   display:flex;
   flex-direction:column;
-
   padding:
     0
     12px
     calc(8px + env(safe-area-inset-bottom))
     12px;
-
   background:#000;
 }
-
-
 /* ================================
    PANTALLA
 ================================ */
-
 .display{
   flex:1;
   min-height:0;
-
   display:flex;
   flex-direction:column;
   justify-content:flex-end;
-
   padding:
     10px
     6px
     14px;
-
   overflow:hidden;
-
-  position:relative;
 }
-
-
-/* ================================
-   BOTÓN BORRAR
-================================ */
-
-.delete-button{
-
-  position:absolute;
-
-  top:10px;
-  right:4px;
-
-  width:42px;
-  height:42px;
-
-  border-radius:50%;
-
-  border:0;
-
-  background:#333;
-  color:#fff;
-
-  font-size:21px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  padding:0;
-
-  cursor:pointer;
-
-  touch-action:manipulation;
-}
-
-.delete-button:active{
-  transform:scale(.90);
-}
-
-
 /* ================================
    HISTORIAL
 ================================ */
-
 .history{
   width:100%;
-
   max-height:30%;
-
   overflow:hidden;
-
   text-align:right;
-
   color:#777;
-
   font-size:17px;
-
   line-height:1.35;
-
   margin-bottom:5px;
 }
-
-
 /* ================================
    EXPRESIÓN
 ================================ */
-
 .expression{
   width:100%;
-
   min-height:25px;
-
   text-align:right;
-
   color:#888;
-
   font-size:21px;
-
   line-height:1.2;
-
   white-space:nowrap;
-
   overflow:hidden;
-
   margin-bottom:3px;
 }
-
-
 /* ================================
    RESULTADO
 ================================ */
-
 .result{
   width:100%;
-
   text-align:right;
-
   color:#fff;
-
   font-size:clamp(
     44px,
     14vw,
     86px
   );
-
   font-weight:300;
-
   line-height:.95;
-
   letter-spacing:-1px;
-
   white-space:nowrap;
-
   overflow:hidden;
-
   text-overflow:clip;
 }
-
-
 /* ================================
    TECLADO
 ================================ */
-
 .keypad{
   width:100%;
-
   display:grid;
-
   grid-template-columns:
     repeat(4, minmax(0,1fr));
-
   gap:9px;
-
   flex:0 0 auto;
-
   align-items:stretch;
 }
-
-
 button{
   width:100%;
-
   min-width:0;
-
   aspect-ratio:1 / 1;
-
   border:0;
-
   border-radius:50%;
-
   font-family:inherit;
-
   font-size:clamp(
     25px,
     7vw,
     36px
   );
-
   font-weight:400;
-
   cursor:pointer;
-
   touch-action:manipulation;
-
   padding:0;
-
   transition:
     transform .08s ease,
     filter .08s ease;
 }
-
 button:active{
   transform:scale(.92);
 }
-
-
 .number{
   background:#333;
   color:#fff;
 }
-
-
 .function{
   background:#a5a5a5;
   color:#000;
 }
-
-
+.delete{
+  background:#a5a5a5;
+  color:#000;
+}
 .operator{
   background:#ff9500;
   color:#fff;
 }
-
-
 .operator.active{
   background:#fff;
   color:#ff9500;
 }
-
-
 .zero{
   grid-column:span 2;
-
   aspect-ratio:auto;
-
   border-radius:50px;
-
   text-align:left;
-
   padding-left:28px;
 }
-
-
 /* ================================
    AVISO
 ================================ */
-
 .notice{
-
   position:fixed;
-
   left:50%;
-
   bottom:
     calc(
       100px +
       env(safe-area-inset-bottom)
     );
-
   transform:
     translateX(-50%);
-
   background:#222;
-
   padding:11px 17px;
-
   border-radius:15px;
-
   font-size:14px;
-
   color:#fff;
-
   opacity:0;
-
   pointer-events:none;
-
   transition:opacity .2s;
-
   z-index:50;
-
   text-align:center;
-
   width:max-content;
-
   max-width:90%;
 }
-
 .notice.show{
   opacity:1;
 }
-
 </style>
 </head>
-
-
 <body>
-
-
 <div class="calculator">
-
-
   <div class="display">
-
-
-    <!-- BOTÓN BORRAR -->
-    <button
-      class="delete-button"
-      onclick="deleteLast()"
-      aria-label="Borrar">
-      ⌫
-    </button>
-
-
     <div
       id="history"
       class="history">
     </div>
-
-
     <div
       id="expression"
       class="expression">
     </div>
-
-
     <div
       id="result"
       class="result">
       0
     </div>
-
-
   </div>
-
-
-
   <div class="keypad">
-
-
+    <!-- FILA 1 -->
     <button
       class="function"
       onclick="clearAll()">
       AC
     </button>
-
-
     <button
       class="function"
       onclick="toggleSign()">
       ±
     </button>
-
-
     <button
       class="function"
       onclick="percent()">
       %
     </button>
-
-
+    <button
+      class="delete"
+      onclick="deleteLast()"
+      aria-label="Borrar">
+      ⌫
+    </button>
+    <!-- FILA 2 -->
+    <button
+      class="number"
+      onclick="number('7')">
+      7
+    </button>
+    <button
+      class="number"
+      onclick="number('8')">
+      8
+    </button>
+    <button
+      class="number"
+      onclick="number('9')">
+      9
+    </button>
     <button
       class="operator"
       data-op="/"
       onclick="operator('/')">
       ÷
     </button>
-
-
-
+    <!-- FILA 3 -->
     <button
       class="number"
-      onclick="number('7')">
-      7
+      onclick="number('4')">
+      4
     </button>
-
-
     <button
       class="number"
-      onclick="number('8')">
-      8
+      onclick="number('5')">
+      5
     </button>
-
-
     <button
       class="number"
-      onclick="number('9')">
-      9
+      onclick="number('6')">
+      6
     </button>
-
-
     <button
       class="operator"
       data-op="*"
       onclick="operator('*')">
       ×
     </button>
-
-
-
+    <!-- FILA 4 -->
     <button
       class="number"
-      onclick="number('4')">
-      4
+      onclick="number('1')">
+      1
     </button>
-
-
     <button
       class="number"
-      onclick="number('5')">
-      5
+      onclick="number('2')">
+      2
     </button>
-
-
     <button
       class="number"
-      onclick="number('6')">
-      6
+      onclick="number('3')">
+      3
     </button>
-
-
     <button
       class="operator"
       data-op="-"
       onclick="operator('-')">
       −
     </button>
-
-
-
+    <!-- FILA 5 -->
+    <button
+      class="number zero"
+      onclick="number('0')">
+      0
+    </button>
     <button
       class="number"
-      onclick="number('1')">
-      1
+      onclick="decimal()">
+      ,
     </button>
-
-
     <button
-      class="number"
-      onclick="number('2')">
-      2
+      class="operator"
+      onclick="equals()">
+      =
     </button>
-
-
-    <button
-      class="number"
-      onclick="number('3')">
-      3
-    </button>
-
-
     <button
       class="operator"
       data-op="+"
       onclick="operator('+')">
       +
     </button>
-
-
-
-    <button
-      class="number zero"
-      onclick="number('0')">
-      0
-    </button>
-
-
-    <button
-      class="number"
-      onclick="decimal()">
-      ,
-    </button>
-
-
-    <button
-      class="operator"
-      onclick="equals()">
-      =
-    </button>
-
-
   </div>
-
 </div>
-
-
-
 <div
   id="notice"
   class="notice">
 </div>
-
-
-
 <script>
-
-
 /* ==========================================
    ESTADO
 ========================================== */
-
 let current = "0";
-
 let previous = null;
-
 let currentOperator = null;
-
 let waitingForOperand = false;
-
 let expressionParts = [];
-
-
 /* ==========================================
    ESTADO DEL TRUCO
 ========================================== */
-
 let accumulatedTotal = null;
-
 let magicMode = false;
-
 let magicBase = null;
-
 let magicMissing = null;
-
 let magicTarget = null;
-
 let magicTargetString = null;
-
-
 /*
   0 = normal
   1 = primer =
   2 = segundo = / truco
 */
-
 let equalsStage = 0;
-
-
 /*
-  Guardamos la referencia SOLO
-  a la última entrada del historial.
+  NUEVO SISTEMA DE HISTORIAL
+  La última operación NO se escribe
+  inmediatamente al pulsar el primer =.
+  Se guarda aquí temporalmente.
+  Si el usuario pulsa segundo =,
+  simplemente desaparece internamente
+  y el historial visible NO SE TOCA.
+  Si continúa usando la calculadora,
+  entonces se puede guardar.
 */
-
-let lastEqualsHistoryEntry = null;
-
-
+let pendingHistoryText = null;
 /* ==========================================
    ELEMENTOS
 ========================================== */
-
 const resultEl =
   document.getElementById("result");
-
 const expressionEl =
   document.getElementById("expression");
-
 const historyEl =
   document.getElementById("history");
-
 const notice =
   document.getElementById("notice");
-
-
 /* ==========================================
    FORMATO
 ========================================== */
-
 function formatNumber(value){
-
   if(!Number.isFinite(value)){
     return "Error";
   }
-
   return value.toLocaleString(
     "es-ES",
     {
@@ -634,941 +399,599 @@ function formatNumber(value){
     }
   );
 }
-
-
+/* ==========================================
+   HISTORIAL
+========================================== */
+function savePendingHistory(){
+  if(
+    pendingHistoryText !== null
+  ){
+    const historyEntry =
+      document.createElement("div");
+    historyEntry.textContent =
+      pendingHistoryText;
+    historyEl.appendChild(
+      historyEntry
+    );
+    pendingHistoryText = null;
+  }
+}
 /* ==========================================
    PANTALLA
 ========================================== */
-
 function updateDisplay(){
-
   if(current === "Error"){
-
     resultEl.textContent =
       "Error";
-
   }
   else if(current.includes(".")){
-
     resultEl.textContent =
       current.replace(".",",");
-
   }
   else{
-
     resultEl.textContent =
       formatNumber(
         Number(current)
       );
   }
-
-
   expressionEl.textContent =
     expressionParts.join(" ");
 }
-
-
 /* ==========================================
    NÚMEROS
 ========================================== */
-
 function number(num){
-
+  /*
+    Si había una operación pendiente
+    en el historial, ahora sí podemos
+    guardarla porque el usuario ha
+    continuado normalmente.
+  */
+  if(
+    equalsStage !== 1 &&
+    pendingHistoryText !== null
+  ){
+    savePendingHistory();
+  }
   equalsStage = 0;
-
-
   if(magicMode){
-
     magicMode = false;
-
     magicBase = null;
-
     magicMissing = null;
-
     magicTarget = null;
-
     magicTargetString = null;
   }
-
-
   if(current === "Error"){
-
     current = "0";
   }
-
-
   if(waitingForOperand){
-
     current = num;
-
     waitingForOperand = false;
-
   }
   else{
-
     if(current === "0"){
-
       current = num;
-
     }
     else{
-
       current += num;
     }
   }
-
-
   updateDisplay();
 }
-
-
 /* ==========================================
    DECIMAL
 ========================================== */
-
 function decimal(){
-
+  if(
+    equalsStage !== 1 &&
+    pendingHistoryText !== null
+  ){
+    savePendingHistory();
+  }
   equalsStage = 0;
-
-
   if(magicMode){
-
     magicMode = false;
-
     magicBase = null;
-
     magicMissing = null;
-
     magicTarget = null;
-
     magicTargetString = null;
-
     current = "0";
-
     waitingForOperand = false;
-
     expressionParts = [];
   }
-
-
   if(waitingForOperand){
-
     current = "0.";
-
     waitingForOperand = false;
-
   }
   else if(!current.includes(".")){
-
     current += ".";
   }
-
-
   updateDisplay();
 }
-
-
 /* ==========================================
    BORRAR ÚLTIMO DÍGITO
 ========================================== */
-
 function deleteLast(){
-
   /*
-    Si estamos en modo mágico y el usuario
-    quiere borrar, salimos del modo mágico.
+    Borrar después de una operación
+    confirmada no debe tocar el historial.
   */
-
   if(magicMode){
-
     magicMode = false;
-
     magicBase = null;
-
     magicMissing = null;
-
     magicTarget = null;
-
     magicTargetString = null;
-
     equalsStage = 0;
   }
-
-
   if(
     waitingForOperand ||
     current === "Error"
   ){
-
     return;
   }
-
-
   if(current.length <= 1){
-
     current = "0";
-
   }
   else{
-
     current =
       current.slice(
         0,
         -1
       );
   }
-
-
   updateDisplay();
 }
-
-
 /* ==========================================
    OPERADORES
 ========================================== */
-
 function operator(op){
-
+  /*
+    Si había una operación pendiente
+    y el usuario sigue normalmente,
+    ahora sí la guardamos.
+  */
+  if(
+    equalsStage !== 1 &&
+    pendingHistoryText !== null
+  ){
+    savePendingHistory();
+  }
   equalsStage = 0;
-
-
   if(magicMode){
-
     magicMode = false;
-
     magicBase = null;
-
     magicMissing = null;
-
     magicTarget = null;
-
     magicTargetString = null;
   }
-
-
   const value =
     Number(current);
-
-
   if(
     currentOperator &&
     waitingForOperand
   ){
-
     currentOperator = op;
-
-
     expressionParts[
       expressionParts.length - 1
     ] =
       operatorSymbol(op);
-
-
     updateDisplay();
-
     return;
   }
-
-
   if(previous === null){
-
     previous = value;
-
   }
   else if(currentOperator){
-
     const calculated =
       calculate(
         previous,
         value,
         currentOperator
       );
-
-
     current =
       String(calculated);
-
     previous =
       calculated;
   }
-
-
   currentOperator = op;
-
   waitingForOperand = true;
-
-
   expressionParts.push(
     formatNumber(value)
   );
-
   expressionParts.push(
     operatorSymbol(op)
   );
-
-
   updateDisplay();
-
-
   document
     .querySelectorAll(".operator")
     .forEach(btn=>{
       btn.classList.remove("active");
     });
-
-
   const active =
     document.querySelector(
       `.operator[data-op="${op}"]`
     );
-
-
   if(active){
-
     active.classList.add("active");
   }
 }
-
-
 /* ==========================================
    SÍMBOLOS
 ========================================== */
-
 function operatorSymbol(op){
-
-  if(op === "+") return "+";
-
-  if(op === "-") return "−";
-
-  if(op === "*") return "×";
-
-  if(op === "/") return "÷";
-
+  if(op === "+")
+    return "+";
+  if(op === "-")
+    return "−";
+  if(op === "*")
+    return "×";
+  if(op === "/")
+    return "÷";
   return op;
 }
-
-
 /* ==========================================
    CÁLCULO
 ========================================== */
-
 function calculate(a,b,op){
-
   if(op === "+")
     return a + b;
-
   if(op === "-")
     return a - b;
-
   if(op === "*")
     return a * b;
-
   if(op === "/")
     return b === 0
       ? NaN
       : a / b;
-
   return b;
 }
-
-
 /* ==========================================
    IGUAL
 ========================================== */
-
 function equals(){
-
-
-  /* ----------------------------------------
+  /* ========================================
      TERCER =
      FINAL DEL TRUCO
-  ---------------------------------------- */
-
+  ======================================== */
   if(magicMode){
-
     const finalResult =
       magicBase +
       magicMissing;
-
-
     current =
       magicTargetString;
-
-
     previous = null;
-
     currentOperator = null;
-
     waitingForOperand = true;
-
     expressionParts = [];
-
-
     expressionEl.textContent = "";
-
     resultEl.textContent =
       magicTargetString;
-
-
     /*
-      MUY IMPORTANTE:
-      aquí NO tocamos el historial.
+      IMPORTANTÍSIMO:
+      NO BORRAMOS HISTORIAL.
+      NO MODIFICAMOS HISTORIAL.
+      NO HACEMOS innerHTML.
+      NO QUITAMOS NINGUNA ENTRADA.
     */
-
-
     accumulatedTotal =
       finalResult;
-
-
     magicMode = false;
-
     magicBase = null;
-
     magicMissing = null;
-
     magicTarget = null;
-
     magicTargetString = null;
-
     equalsStage = 0;
-
-    lastEqualsHistoryEntry = null;
-
-
+    /*
+      La operación pendiente desaparece
+      únicamente de la memoria.
+    */
+    pendingHistoryText = null;
     document
       .querySelectorAll(".operator")
       .forEach(btn=>{
         btn.classList.remove("active");
       });
-
-
     return;
   }
-
-
-  /* ----------------------------------------
+  /* ========================================
      PRIMER =
-  ---------------------------------------- */
-
+  ======================================== */
   if(equalsStage === 0){
-
-
     document
       .querySelectorAll(".operator")
       .forEach(btn=>{
         btn.classList.remove("active");
       });
-
-
     if(
       currentOperator !== null &&
       previous !== null
     ){
-
       const operand =
         Number(current);
-
-
       const oldPrevious =
         previous;
-
-
       const result =
         calculate(
           oldPrevious,
           operand,
           currentOperator
         );
-
-
       /*
-        CREAMOS UNA ENTRADA INDIVIDUAL.
-
-        No se vuelve a escribir todo
-        el historial.
+        AQUÍ ESTÁ EL CAMBIO IMPORTANTE.
+        NO escribimos todavía
+        nada en historyEl.
+        Lo guardamos únicamente
+        en memoria.
       */
-
-      const historyEntry =
-        document.createElement("div");
-
-
-      historyEntry.textContent =
+      pendingHistoryText =
         `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`;
-
-
-      historyEl.appendChild(
-        historyEntry
-      );
-
-
-      /*
-        Guardamos únicamente esta entrada.
-      */
-
-      lastEqualsHistoryEntry =
-        historyEntry;
-
-
       current =
         String(result);
-
-
       accumulatedTotal =
         result;
-
-
       previous = null;
-
       currentOperator = null;
-
       waitingForOperand = true;
-
       expressionParts = [];
-
-
       updateDisplay();
-
     }
     else{
-
       accumulatedTotal =
         Number(current);
-
       updateDisplay();
     }
-
-
     equalsStage = 1;
-
     return;
   }
-
-
-  /* ----------------------------------------
+  /* ========================================
      SEGUNDO =
      ACTIVAR TRUCO
-  ---------------------------------------- */
-
+  ======================================== */
   if(equalsStage === 1){
-
     ejecutarTruco();
-
     equalsStage = 2;
-
     return;
   }
 }
-
-
 /* ==========================================
    FECHA Y HORA
 ========================================== */
-
 function getTarget(){
-
   const now =
     new Date();
-
-
   const day =
     String(
       now.getDate()
     ).padStart(2,"0");
-
-
   const month =
     String(
       now.getMonth() + 1
     ).padStart(2,"0");
-
-
   const year =
     String(
       now.getFullYear()
     );
-
-
   const hour =
     String(
       now.getHours()
     ).padStart(2,"0");
-
-
   const minute =
     String(
       now.getMinutes()
     ).padStart(2,"0");
-
-
   const targetString =
     day +
     month +
     year +
     hour +
     minute;
-
-
   return {
-
     number:
       Number(targetString),
-
     string:
       targetString,
-
     readable:
       `${day}/${month}/${year} ${hour}:${minute}`
   };
 }
-
-
 /* ==========================================
    ACTIVAR TRUCO
 ========================================== */
-
 function ejecutarTruco(){
-
-
   let currentTotal =
     Number(accumulatedTotal);
-
-
   if(!Number.isFinite(currentTotal)){
-
     currentTotal =
       Number(current);
   }
-
-
   if(!Number.isFinite(currentTotal)){
-
     return;
   }
-
-
   /*
-    CAPTURAMOS LA FECHA Y HORA
-    EN EL MOMENTO EXACTO DEL DOBLE =.
+    Capturamos la fecha y hora
+    exactamente al segundo "=".
   */
-
   const target =
     getTarget();
-
-
   const targetNumber =
     target.number;
-
-
   const missing =
     targetNumber -
     currentTotal;
-
-
   if(missing < 0){
-
     showNotice(
       "El resultado actual es demasiado alto."
     );
-
     return;
   }
-
-
   /*
-    ========================================
-    AQUÍ ESTÁ LA CORRECCIÓN IMPORTANTE
-    ========================================
-
-    NO usamos:
-
-      historyEl.innerHTML = "";
-
-    NO borramos el historial entero.
-
-    NO reconstruimos el historial.
-
-    ÚNICAMENTE eliminamos la última
-    entrada que se creó con el primer =.
+    AQUÍ NO SE TOCA EL HISTORIAL.
+    La operación del primer "="
+    todavía no estaba escrita en él.
+    Por tanto:
+      historyEl.innerHTML = ""
+    NO EXISTE.
+    removeChild()
+    TAMPOCO EXISTE.
   */
-
-  if(
-    lastEqualsHistoryEntry &&
-    lastEqualsHistoryEntry.parentNode === historyEl
-  ){
-
-    historyEl.removeChild(
-      lastEqualsHistoryEntry
-    );
-
-    lastEqualsHistoryEntry = null;
-  }
-
-
-  /*
-    GUARDAMOS LOS DATOS DEL TRUCO.
-  */
-
   magicMode = true;
-
   magicBase =
     currentTotal;
-
   magicMissing =
     missing;
-
   magicTarget =
     targetNumber;
-
   magicTargetString =
     target.string;
-
-
   /*
-    MOSTRAMOS EL NÚMERO QUE FALTA.
+    Mostramos solamente
+    el número que falta.
   */
-
   current =
     String(missing);
-
   previous = null;
-
   currentOperator = null;
-
   waitingForOperand = true;
-
   expressionParts = [];
-
-
   expressionEl.textContent = "";
-
   resultEl.textContent =
     String(missing);
 }
-
-
 /* ==========================================
    AC
 ========================================== */
-
 function clearAll(){
-
   current = "0";
-
   previous = null;
-
   currentOperator = null;
-
   waitingForOperand = false;
-
   expressionParts = [];
-
   accumulatedTotal = null;
-
-
   magicMode = false;
-
   magicBase = null;
-
   magicMissing = null;
-
   magicTarget = null;
-
   magicTargetString = null;
-
-
   equalsStage = 0;
-
-  lastEqualsHistoryEntry = null;
-
-
+  pendingHistoryText = null;
   /*
-    AC SÍ puede borrar todo el historial,
-    porque este es el botón de borrar todo.
+    ÚNICAMENTE AC borra todo
+    el historial.
   */
-
   historyEl.innerHTML = "";
-
-
   expressionEl.textContent = "";
-
   resultEl.textContent = "0";
-
-
   document
     .querySelectorAll(".operator")
     .forEach(btn=>{
       btn.classList.remove("active");
     });
 }
-
-
 /* ==========================================
    +/-
 ========================================== */
-
 function toggleSign(){
-
+  if(
+    equalsStage !== 1 &&
+    pendingHistoryText !== null
+  ){
+    savePendingHistory();
+  }
   equalsStage = 0;
-
-
   if(current === "0")
     return;
-
-
   if(current.startsWith("-")){
-
     current =
       current.substring(1);
-
   }
   else{
-
     current =
       "-" + current;
   }
-
-
   updateDisplay();
 }
-
-
 /* ==========================================
    %
 ========================================== */
-
 function percent(){
-
+  if(
+    equalsStage !== 1 &&
+    pendingHistoryText !== null
+  ){
+    savePendingHistory();
+  }
   equalsStage = 0;
-
-
   const value =
     Number(current);
-
-
   current =
     String(value / 100);
-
-
   updateDisplay();
 }
-
-
 /* ==========================================
    AVISO
 ========================================== */
-
 function showNotice(text){
-
   notice.textContent =
     text;
-
-
   notice.classList.add(
     "show"
   );
-
-
   setTimeout(()=>{
     notice.classList.remove(
       "show"
     );
   },2500);
 }
-
-
 /* ==========================================
    TECLADO FÍSICO
 ========================================== */
-
 document.addEventListener(
   "keydown",
   function(e){
-
-
     if(
       e.key >= "0" &&
       e.key <= "9"
     ){
-
       number(e.key);
     }
-
-
     if(e.key === "."){
-
       decimal();
     }
-
-
     if(e.key === "+"){
-
       operator("+");
     }
-
-
     if(e.key === "-"){
-
       operator("-");
     }
-
-
     if(e.key === "*"){
-
       operator("*");
     }
-
-
     if(e.key === "/"){
-
       e.preventDefault();
-
       operator("/");
     }
-
-
     if(
       e.key === "Enter" ||
       e.key === "="
     ){
-
       equals();
     }
-
-
-    if(
-      e.key === "Escape"
-    ){
-
+    if(e.key === "Escape"){
       clearAll();
     }
-
-
-    if(
-      e.key === "%"
-    ){
-
+    if(e.key === "%"){
       percent();
     }
-
-
-    if(
-      e.key === "Backspace"
-    ){
-
+    if(e.key === "Backspace"){
       deleteLast();
     }
-
   }
 );
-
-
 /* ==========================================
    INICIO
 ========================================== */
-
 updateDisplay();
-
 </script>
-
 </body>
 </html>
