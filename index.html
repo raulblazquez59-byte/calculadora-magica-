@@ -288,13 +288,13 @@ let accumulatedTotal=null;
    HISTORIAL
    ========================= */
 /*
-Guarda solamente la referencia
-a la última operación añadida.
-Así podemos borrar únicamente
-la operación del truco cuando
-se pulsa el segundo "=".
+   Guardamos las entradas del historial
+   como elementos independientes.
+   La variable trickHistoryEntry señala
+   SOLAMENTE la operación que se ha
+   generado con el primer "=" del truco.
 */
-let lastHistoryEntry=null;
+let trickHistoryEntry=null;
 /* =========================
    MAGIA
    ========================= */
@@ -336,27 +336,23 @@ function formatNumber(value){
     );
 }
 /* =========================
-   AÑADIR AL HISTORIAL
+   HISTORIAL
    ========================= */
 function addHistory(text){
     const entry=
         document.createElement("div");
     entry.textContent=text;
     historyEl.appendChild(entry);
-    /*
-    Esta es la operación que
-    podrá desaparecer al pulsar
-    el segundo "=".
-    */
-    lastHistoryEntry=entry;
+    return entry;
 }
-/* =========================
-   BORRAR SOLO LA ÚLTIMA
-   ========================= */
-function removeLastHistory(){
-    if(lastHistoryEntry){
-        lastHistoryEntry.remove();
-        lastHistoryEntry=null;
+/*
+   Elimina únicamente la entrada
+   que se creó para el truco.
+*/
+function removeTrickHistory(){
+    if(trickHistoryEntry){
+        trickHistoryEntry.remove();
+        trickHistoryEntry=null;
     }
 }
 /* =========================
@@ -379,11 +375,6 @@ function updateDisplay(){
    NÚMEROS
    ========================= */
 function number(num){
-    /*
-    Si estamos empezando una nueva
-    operación después de "=",
-    el historial anterior se queda.
-    */
     equalsStage=0;
     if(magicMode){
         magicMode=false;
@@ -568,8 +559,8 @@ function equals(){
         resultEl.textContent=
             magicTargetString;
         /*
-        No añadimos absolutamente
-        nada al historial.
+        El resultado final no entra
+        en el historial.
         */
         accumulatedTotal=
             finalResult;
@@ -612,12 +603,16 @@ function equals(){
                     currentOperator
                 );
             /*
-            AHORA SE GUARDA
-            INMEDIATAMENTE EN HISTORIAL.
+            Añadimos la operación
+            normalmente al historial.
+            Guardamos su referencia
+            SOLO porque puede ser la
+            operación del truco.
             */
-            addHistory(
-                `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
-            );
+            trickHistoryEntry=
+                addHistory(
+                    `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
+                );
             current=
                 String(result);
             accumulatedTotal=
@@ -642,12 +637,13 @@ function equals(){
     */
     if(equalsStage===1){
         /*
-        BORRAMOS ÚNICAMENTE
-        LA ÚLTIMA OPERACIÓN.
-        Todo el historial anterior
-        permanece intacto.
+        AQUÍ ESTÁ EL ÚNICO CAMBIO:
+        Quitamos del historial
+        exclusivamente la operación
+        que se acaba de realizar.
+        No tocamos ninguna anterior.
         */
-        removeLastHistory();
+        removeTrickHistory();
         ejecutarTruco();
         equalsStage=2;
         return;
@@ -731,8 +727,8 @@ function ejecutarTruco(){
     magicTargetString=
         target.string;
     /*
-    Mostramos únicamente
-    el número secreto.
+    Mostrar solamente
+    el número que falta.
     */
     current=
         String(missing);
@@ -760,11 +756,7 @@ function clearAll(){
     magicTarget=null;
     magicTargetString=null;
     equalsStage=0;
-    lastHistoryEntry=null;
-    /*
-    AC sí borra todo el historial,
-    igual que una calculadora normal.
-    */
+    trickHistoryEntry=null;
     historyEl.innerHTML="";
     expressionEl.textContent="";
     resultEl.textContent="0";
