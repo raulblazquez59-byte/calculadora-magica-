@@ -72,6 +72,7 @@ let magicMissing=null;
 let magicTarget=null;
 let magicTargetString=null;
 let equalsStage=0;
+let magicHistoryEntry=null;
 const resultEl=document.getElementById("result");
 const expressionEl=document.getElementById("expression");
 const historyEl=document.getElementById("history");
@@ -87,6 +88,7 @@ function addHistory(text){
     const entry=document.createElement("div");
     entry.textContent=text;
     historyEl.appendChild(entry);
+    return entry;
 }
 function updateDisplay(){
     if(current==="Error"){
@@ -106,6 +108,7 @@ function number(num){
         magicMissing=null;
         magicTarget=null;
         magicTargetString=null;
+        magicHistoryEntry=null;
     }
     if(current==="Error") current="0";
     if(waitingForOperand){
@@ -128,6 +131,7 @@ function decimal(){
         magicMissing=null;
         magicTarget=null;
         magicTargetString=null;
+        magicHistoryEntry=null;
         current="0";
         waitingForOperand=false;
         expressionParts=[];
@@ -147,6 +151,7 @@ function deleteLast(){
         magicMissing=null;
         magicTarget=null;
         magicTargetString=null;
+        magicHistoryEntry=null;
         equalsStage=0;
     }
     if(waitingForOperand || current==="Error") return;
@@ -165,6 +170,7 @@ function operator(op){
         magicMissing=null;
         magicTarget=null;
         magicTargetString=null;
+        magicHistoryEntry=null;
     }
     const value=Number(current);
     if(currentOperator && waitingForOperand){
@@ -222,6 +228,7 @@ function equals(){
         magicMissing=null;
         magicTarget=null;
         magicTargetString=null;
+        magicHistoryEntry=null;
         equalsStage=0;
         document.querySelectorAll(".operator").forEach(btn=>{
             btn.classList.remove("active");
@@ -241,7 +248,7 @@ function equals(){
                 operand,
                 currentOperator
             );
-            addHistory(
+            magicHistoryEntry=addHistory(
                 `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`
             );
             current=String(result);
@@ -260,7 +267,6 @@ function equals(){
     }
     /* SEGUNDO = */
     if(equalsStage===1){
-        /* EL HISTORIAL NO SE TOCA */
         ejecutarTruco();
         equalsStage=2;
         return;
@@ -303,6 +309,13 @@ function ejecutarTruco(){
     magicMissing=missing;
     magicTarget=targetNumber;
     magicTargetString=target.string;
+    /*
+     * SUSTITUIMOS TAMBIÉN LA ÚLTIMA LÍNEA
+     * DEL HISTORIAL POR EL NÚMERO SECRETO.
+     */
+    if(magicHistoryEntry){
+        magicHistoryEntry.textContent=formatNumber(missing);
+    }
     current=String(missing);
     previous=null;
     currentOperator=null;
@@ -324,6 +337,7 @@ function clearAll(){
     magicTarget=null;
     magicTargetString=null;
     equalsStage=0;
+    magicHistoryEntry=null;
     /* AC ES EL ÚNICO QUE BORRA EL HISTORIAL */
     historyEl.innerHTML="";
     expressionEl.textContent="";
