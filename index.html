@@ -207,7 +207,7 @@ button:active{
   color:#fff;
 }
 
-/* Botones superiores */
+/* Funciones */
 
 .function{
   background:#a5a5a5;
@@ -241,8 +241,7 @@ button:active{
 }
 
 /* =========================
-   AVISO DISCRETO
-   Solo para errores reales.
+   AVISO
 ========================= */
 
 .notice{
@@ -451,7 +450,7 @@ button:active{
 <script>
 
 /* =====================================================
-   ESTADO
+   ESTADO NORMAL
 ===================================================== */
 
 let current = "0";
@@ -465,9 +464,9 @@ let waitingForOperand = false;
 let expressionParts = [];
 
 
-/*
+/* =====================================================
    ESTADO DEL TRUCO
-*/
+===================================================== */
 
 let accumulatedTotal = null;
 
@@ -483,10 +482,12 @@ let magicTargetString = null;
 
 
 /*
-   CONTROL DEL DOBLE =
+   0 = no se ha pulsado =
+   1 = ya se ha pulsado el primer =
+   2 = el doble = ya activó el truco
 */
 
-let lastEqualsTime = 0;
+let equalsStage = 0;
 
 
 /* =====================================================
@@ -507,7 +508,7 @@ const notice =
 
 
 /* =====================================================
-   FORMATO
+   FORMATO NORMAL
 ===================================================== */
 
 function formatNumber(value){
@@ -527,7 +528,7 @@ function formatNumber(value){
 
 
 /* =====================================================
-   PANTALLA
+   ACTUALIZAR PANTALLA
 ===================================================== */
 
 function updateDisplay(){
@@ -544,9 +545,7 @@ function updateDisplay(){
   }else{
 
     resultEl.textContent =
-      formatNumber(
-        Number(current)
-      );
+      formatNumber(Number(current));
   }
 
   expressionEl.textContent =
@@ -560,12 +559,22 @@ function updateDisplay(){
 
 function number(num){
 
-  if(magicMode){
+  /*
+   * Cualquier número nuevo cancela
+   * la secuencia del doble igual.
+   */
 
-    /*
-      Si estamos en modo mágico,
-      los números empiezan una nueva entrada.
-    */
+  equalsStage = 0;
+
+
+  /*
+   * Si estábamos mostrando
+   * el número secreto, empezar
+   * a escribir significa abandonar
+   * el modo mágico.
+   */
+
+  if(magicMode){
 
     magicMode = false;
 
@@ -576,12 +585,6 @@ function number(num){
     magicTarget = null;
 
     magicTargetString = null;
-
-    expressionParts = [];
-
-    current = "0";
-
-    waitingForOperand = false;
   }
 
 
@@ -620,6 +623,9 @@ function number(num){
 
 function decimal(){
 
+  equalsStage = 0;
+
+
   if(magicMode){
 
     magicMode = false;
@@ -632,11 +638,11 @@ function decimal(){
 
     magicTargetString = null;
 
-    expressionParts = [];
-
     current = "0";
 
     waitingForOperand = false;
+
+    expressionParts = [];
   }
 
 
@@ -663,10 +669,12 @@ function decimal(){
 function operator(op){
 
   /*
-    Si estamos en modo mágico,
-    cualquier operación nueva cancela
-    el estado secreto.
-  */
+   * Una operación nueva cancela
+   * la secuencia del doble igual.
+   */
+
+  equalsStage = 0;
+
 
   if(magicMode){
 
@@ -809,65 +817,72 @@ function calculate(a,b,op){
 
 function equals(){
 
-  const now =
-    Date.now();
-
-
   /*
-    ==========================================
-    MODO MÁGICO
-    ==========================================
-  */
+   * =========================================
+   * TERCER =
+   *
+   * Estamos en modo mágico.
+   * El número mostrado es el que falta.
+   *
+   * Al pulsar =:
+   *
+   * TOTAL + FALTANTE
+   *
+   * = FECHA/HORA
+   * =========================================
+   */
 
   if(magicMode){
 
-    /*
-      El número mostrado es el número
-      que falta.
-
-      Lo sumamos automáticamente
-      al número original.
-    */
-
     const finalResult =
-      magicBase +
-      magicMissing;
+      magicBase + magicMissing;
 
 
     /*
-      Mostramos EXACTAMENTE
-      la fecha/hora que congelamos
-      cuando se activó el truco.
-    */
+     * Mostramos el objetivo congelado.
+     */
 
     current =
       magicTargetString;
 
 
+    previous = null;
+
+    currentOperator = null;
+
+    waitingForOperand = true;
+
     expressionParts = [];
 
 
-    expressionEl.textContent =
-      "";
-
+    expressionEl.textContent = "";
 
     resultEl.textContent =
       magicTargetString;
 
 
+    /*
+     * Guardamos la operación
+     * en historial, igual que una
+     * calculadora normal.
+     */
+
     historyEl.innerHTML +=
       `<div>
         ${formatNumber(magicBase)}
         +
-        ${formatNumber(magicMissing)}
+        ${String(magicMissing)}
         =
         ${magicTargetString}
       </div>`;
 
 
     /*
-      Salimos del modo mágico.
-    */
+     * Finalizamos el modo secreto.
+     */
+
+    accumulatedTotal =
+      finalResult;
 
     magicMode = false;
 
@@ -879,16 +894,7 @@ function equals(){
 
     magicTargetString = null;
 
-    accumulatedTotal =
-      Number(finalResult);
-
-    previous = null;
-
-    currentOperator = null;
-
-    waitingForOperand = true;
-
-    lastEqualsTime = 0;
+    equalsStage = 0;
 
 
     document
@@ -903,128 +909,113 @@ function equals(){
 
 
   /*
-    ==========================================
-    DOBLE =
-    ==========================================
-  */
+   * =========================================
+   * PRIMER =
+   * =========================================
+   */
 
-  const doubleEquals =
-    now - lastEqualsTime < 700;
+  if(equalsStage === 0){
+
+    document
+      .querySelectorAll(".operator")
+      .forEach(btn=>{
+        btn.classList.remove("active");
+      });
+
+
+    /*
+     * Si existe una operación pendiente,
+     * la calculamos normalmente.
+     */
+
+    if(
+      currentOperator !== null &&
+      previous !== null
+    ){
+
+      const operand =
+        Number(current);
+
+      const oldPrevious =
+        previous;
+
+      const result =
+        calculate(
+          oldPrevious,
+          operand,
+          currentOperator
+        );
+
+
+      historyEl.innerHTML +=
+        `<div>
+          ${formatNumber(oldPrevious)}
+          ${operatorSymbol(currentOperator)}
+          ${formatNumber(operand)}
+          =
+          ${formatNumber(result)}
+        </div>`;
+
+
+      current =
+        String(result);
+
+
+      accumulatedTotal =
+        result;
+
+
+      previous = null;
+
+      currentOperator = null;
+
+      waitingForOperand = true;
+
+      expressionParts = [];
+
+
+      updateDisplay();
+
+    }else{
+
+      /*
+       * Si no hay operación,
+       * simplemente guardamos el número.
+       */
+
+      accumulatedTotal =
+        Number(current);
+
+      updateDisplay();
+    }
+
+
+    /*
+     * Ya se hizo el primer igual.
+     */
+
+    equalsStage = 1;
+
+    return;
+  }
 
 
   /*
-    Si es doble igual y ya tenemos
-    un resultado, activamos el truco.
-  */
+   * =========================================
+   * SEGUNDO =
+   *
+   * AQUÍ SE ACTIVA EL TRUCO.
+   * =========================================
+   */
 
-  if(
-    doubleEquals &&
-    accumulatedTotal !== null
-  ){
+  if(equalsStage === 1){
 
     ejecutarTruco();
 
-    lastEqualsTime = 0;
+    equalsStage = 2;
 
     return;
   }
-
-
-  /*
-    ==========================================
-    IGUAL NORMAL
-    ==========================================
-  */
-
-  document
-    .querySelectorAll(".operator")
-    .forEach(btn=>{
-      btn.classList.remove("active");
-    });
-
-
-  if(
-    currentOperator !== null &&
-    previous !== null
-  ){
-
-    const operand =
-      Number(current);
-
-
-    const oldPrevious =
-      previous;
-
-
-    const result =
-      calculate(
-        oldPrevious,
-        operand,
-        currentOperator
-      );
-
-
-    historyEl.innerHTML +=
-      `<div>
-        ${formatNumber(oldPrevious)}
-        ${operatorSymbol(currentOperator)}
-        ${formatNumber(operand)}
-        =
-        ${formatNumber(result)}
-      </div>`;
-
-
-    current =
-      String(result);
-
-
-    /*
-      GUARDAMOS EL TOTAL
-      PARA EL DOBLE =
-    */
-
-    accumulatedTotal =
-      result;
-
-
-    previous = null;
-
-    currentOperator = null;
-
-    waitingForOperand = true;
-
-    expressionParts = [];
-
-
-    updateDisplay();
-
-
-    /*
-      El primer = queda registrado.
-    */
-
-    lastEqualsTime =
-      now;
-
-
-    return;
-  }
-
-
-  /*
-    Si no había operación pendiente,
-    el número actual es el total.
-  */
-
-  accumulatedTotal =
-    Number(current);
-
-
-  updateDisplay();
-
-
-  lastEqualsTime =
-    now;
 }
 
 
@@ -1033,17 +1024,6 @@ function equals(){
 ===================================================== */
 
 function getTarget(){
-
-  /*
-    IMPORTANTE:
-
-    La fecha y hora se capturan
-    EXACTAMENTE cuando haces
-    el doble =.
-
-    Así no cambia mientras
-    realizas el truco.
-  */
 
   const now =
     new Date();
@@ -1080,14 +1060,12 @@ function getTarget(){
 
 
   /*
-    FORMATO:
-
-    DDMMYYYYHHMM
-
-    Ejemplo:
-
-    270920260215
-  */
+   * DDMMYYYYHHMM
+   *
+   * Ejemplo:
+   *
+   * 270920260215
+   */
 
   const targetString =
     day +
@@ -1112,7 +1090,7 @@ function getTarget(){
 
 
 /* =====================================================
-   TRUCO
+   ACTIVAR TRUCO
 ===================================================== */
 
 function ejecutarTruco(){
@@ -1125,7 +1103,6 @@ function ejecutarTruco(){
 
     currentTotal =
       Number(current);
-
   }
 
 
@@ -1136,8 +1113,9 @@ function ejecutarTruco(){
 
 
   /*
-    CONGELAMOS FECHA Y HORA
-  */
+   * Capturamos fecha y hora
+   * exactamente en este momento.
+   */
 
   const target =
     getTarget();
@@ -1148,21 +1126,20 @@ function ejecutarTruco(){
 
 
   /*
-    NÚMERO QUE FALTA:
-
-    OBJETIVO - TOTAL
-  */
+   * CALCULAMOS:
+   *
+   * OBJETIVO - TOTAL ACTUAL
+   */
 
   const missing =
-    targetNumber -
-    currentTotal;
+    targetNumber - currentTotal;
 
 
   /*
-    Si el número ya es superior
-    al objetivo, no podemos realizar
-    el truco con una suma positiva.
-  */
+   * Si el número actual ya es superior
+   * al objetivo, no se puede hacer
+   * mediante una suma positiva.
+   */
 
   if(missing < 0){
 
@@ -1175,8 +1152,8 @@ function ejecutarTruco(){
 
 
   /*
-    GUARDAMOS TODO EL ESTADO SECRETO.
-  */
+   * Guardamos los datos secretos.
+   */
 
   magicMode = true;
 
@@ -1194,12 +1171,17 @@ function ejecutarTruco(){
 
 
   /*
-    AQUÍ ESTÁ LA PARTE IMPORTANTE:
-
-    Quitamos el número anterior
-    de la pantalla y ponemos
-    SOLAMENTE el número que falta.
-  */
+   * =========================================
+   * AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+   *
+   * Desaparece el número anterior.
+   *
+   * Aparece SOLO el número que falta.
+   *
+   * SIN PUNTOS.
+   * SIN COMAS.
+   * =========================================
+   */
 
   current =
     String(missing);
@@ -1214,15 +1196,10 @@ function ejecutarTruco(){
   expressionParts = [];
 
 
-  /*
-    No mostramos ninguna pista.
-  */
-
-  expressionEl.textContent =
-    "";
+  expressionEl.textContent = "";
 
   resultEl.textContent =
-    formatNumber(missing);
+    String(missing);
 }
 
 
@@ -1246,8 +1223,9 @@ function clearAll(){
 
 
   /*
-    Limpiar estado secreto.
-  */
+   * Borrar completamente
+   * el estado secreto.
+   */
 
   magicMode = false;
 
@@ -1260,7 +1238,7 @@ function clearAll(){
   magicTargetString = null;
 
 
-  lastEqualsTime = 0;
+  equalsStage = 0;
 
 
   historyEl.innerHTML = "";
@@ -1283,6 +1261,9 @@ function clearAll(){
 ===================================================== */
 
 function toggleSign(){
+
+  equalsStage = 0;
+
 
   if(current === "0")
     return;
@@ -1309,6 +1290,9 @@ function toggleSign(){
 ===================================================== */
 
 function percent(){
+
+  equalsStage = 0;
+
 
   const value =
     Number(current);
