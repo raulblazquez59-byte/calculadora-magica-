@@ -310,11 +310,15 @@ function ejecutarTruco(){
     magicTarget=targetNumber;
     magicTargetString=target.string;
     /*
-     * SUSTITUIMOS TAMBIÉN LA ÚLTIMA LÍNEA
-     * DEL HISTORIAL POR EL NÚMERO SECRETO.
+     * SOLO SE SUSTITUYE EL RESULTADO DEL HISTORIAL.
+     * LA OPERACIÓN ORIGINAL SE MANTIENE.
      */
     if(magicHistoryEntry){
-        magicHistoryEntry.textContent=formatNumber(missing);
+        magicHistoryEntry.textContent=
+            magicHistoryEntry.textContent.replace(
+                / = .*$/,
+                ` = ${String(missing)}`
+            );
     }
     current=String(missing);
     previous=null;
