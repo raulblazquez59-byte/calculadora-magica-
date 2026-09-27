@@ -14,6 +14,7 @@ viewport-fit=cover">
 <title>Calculadora</title>
 
 <style>
+
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
@@ -29,6 +30,7 @@ body{
   overflow:hidden;
   background:#000;
   color:#fff;
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -59,6 +61,11 @@ body{
   background:#000;
 }
 
+
+/* ================================
+   PANTALLA
+================================ */
+
 .display{
   flex:1;
   min-height:0;
@@ -73,34 +80,107 @@ body{
     14px;
 
   overflow:hidden;
+
+  position:relative;
 }
+
+
+/* ================================
+   BOTÓN BORRAR
+================================ */
+
+.delete-button{
+
+  position:absolute;
+
+  top:10px;
+  right:4px;
+
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  border:0;
+
+  background:#333;
+  color:#fff;
+
+  font-size:21px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:0;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+.delete-button:active{
+  transform:scale(.90);
+}
+
+
+/* ================================
+   HISTORIAL
+================================ */
 
 .history{
   width:100%;
+
   max-height:30%;
+
   overflow:hidden;
+
   text-align:right;
+
   color:#777;
+
   font-size:17px;
+
   line-height:1.35;
+
   margin-bottom:5px;
 }
 
+
+/* ================================
+   EXPRESIÓN
+================================ */
+
 .expression{
   width:100%;
+
   min-height:25px;
+
   text-align:right;
+
   color:#888;
+
   font-size:21px;
+
   line-height:1.2;
+
   white-space:nowrap;
+
   overflow:hidden;
+
   margin-bottom:3px;
 }
 
+
+/* ================================
+   RESULTADO
+================================ */
+
 .result{
   width:100%;
+
   text-align:right;
+
   color:#fff;
 
   font-size:clamp(
@@ -110,12 +190,22 @@ body{
   );
 
   font-weight:300;
+
   line-height:.95;
+
   letter-spacing:-1px;
+
   white-space:nowrap;
+
   overflow:hidden;
+
   text-overflow:clip;
 }
+
+
+/* ================================
+   TECLADO
+================================ */
 
 .keypad{
   width:100%;
@@ -132,13 +222,16 @@ body{
   align-items:stretch;
 }
 
+
 button{
   width:100%;
+
   min-width:0;
 
   aspect-ratio:1 / 1;
 
   border:0;
+
   border-radius:50%;
 
   font-family:inherit;
@@ -150,8 +243,11 @@ button{
   );
 
   font-weight:400;
+
   cursor:pointer;
+
   touch-action:manipulation;
+
   padding:0;
 
   transition:
@@ -163,35 +259,50 @@ button:active{
   transform:scale(.92);
 }
 
+
 .number{
   background:#333;
   color:#fff;
 }
+
 
 .function{
   background:#a5a5a5;
   color:#000;
 }
 
+
 .operator{
   background:#ff9500;
   color:#fff;
 }
+
 
 .operator.active{
   background:#fff;
   color:#ff9500;
 }
 
+
 .zero{
   grid-column:span 2;
+
   aspect-ratio:auto;
+
   border-radius:50px;
+
   text-align:left;
+
   padding-left:28px;
 }
 
+
+/* ================================
+   AVISO
+================================ */
+
 .notice{
+
   position:fixed;
 
   left:50%;
@@ -233,24 +344,40 @@ button:active{
 .notice.show{
   opacity:1;
 }
+
 </style>
 </head>
 
+
 <body>
+
 
 <div class="calculator">
 
+
   <div class="display">
+
+
+    <!-- BOTÓN BORRAR -->
+    <button
+      class="delete-button"
+      onclick="deleteLast()"
+      aria-label="Borrar">
+      ⌫
+    </button>
+
 
     <div
       id="history"
       class="history">
     </div>
 
+
     <div
       id="expression"
       class="expression">
     </div>
+
 
     <div
       id="result"
@@ -258,9 +385,13 @@ button:active{
       0
     </div>
 
+
   </div>
 
+
+
   <div class="keypad">
+
 
     <button
       class="function"
@@ -268,17 +399,20 @@ button:active{
       AC
     </button>
 
+
     <button
       class="function"
       onclick="toggleSign()">
       ±
     </button>
 
+
     <button
       class="function"
       onclick="percent()">
       %
     </button>
+
 
     <button
       class="operator"
@@ -288,11 +422,13 @@ button:active{
     </button>
 
 
+
     <button
       class="number"
       onclick="number('7')">
       7
     </button>
+
 
     <button
       class="number"
@@ -300,11 +436,13 @@ button:active{
       8
     </button>
 
+
     <button
       class="number"
       onclick="number('9')">
       9
     </button>
+
 
     <button
       class="operator"
@@ -314,11 +452,13 @@ button:active{
     </button>
 
 
+
     <button
       class="number"
       onclick="number('4')">
       4
     </button>
+
 
     <button
       class="number"
@@ -326,11 +466,13 @@ button:active{
       5
     </button>
 
+
     <button
       class="number"
       onclick="number('6')">
       6
     </button>
+
 
     <button
       class="operator"
@@ -340,11 +482,13 @@ button:active{
     </button>
 
 
+
     <button
       class="number"
       onclick="number('1')">
       1
     </button>
+
 
     <button
       class="number"
@@ -352,11 +496,13 @@ button:active{
       2
     </button>
 
+
     <button
       class="number"
       onclick="number('3')">
       3
     </button>
+
 
     <button
       class="operator"
@@ -366,11 +512,13 @@ button:active{
     </button>
 
 
+
     <button
       class="number zero"
       onclick="number('0')">
       0
     </button>
+
 
     <button
       class="number"
@@ -378,15 +526,19 @@ button:active{
       ,
     </button>
 
+
     <button
       class="operator"
       onclick="equals()">
       =
     </button>
 
+
   </div>
 
 </div>
+
+
 
 <div
   id="notice"
@@ -394,11 +546,13 @@ button:active{
 </div>
 
 
+
 <script>
 
-/* =====================================================
-   ESTADO NORMAL
-===================================================== */
+
+/* ==========================================
+   ESTADO
+========================================== */
 
 let current = "0";
 
@@ -411,9 +565,9 @@ let waitingForOperand = false;
 let expressionParts = [];
 
 
-/* =====================================================
+/* ==========================================
    ESTADO DEL TRUCO
-===================================================== */
+========================================== */
 
 let accumulatedTotal = null;
 
@@ -429,25 +583,25 @@ let magicTargetString = null;
 
 
 /*
-   0 = no se ha pulsado =
-   1 = primer =
-   2 = doble = activado
+  0 = normal
+  1 = primer =
+  2 = segundo = / truco
 */
 
 let equalsStage = 0;
 
 
 /*
-   Referencia a la última operación
-   escrita en el historial.
+  Guardamos la referencia SOLO
+  a la última entrada del historial.
 */
 
 let lastEqualsHistoryEntry = null;
 
 
-/* =====================================================
+/* ==========================================
    ELEMENTOS
-===================================================== */
+========================================== */
 
 const resultEl =
   document.getElementById("result");
@@ -462,9 +616,9 @@ const notice =
   document.getElementById("notice");
 
 
-/* =====================================================
+/* ==========================================
    FORMATO
-===================================================== */
+========================================== */
 
 function formatNumber(value){
 
@@ -482,35 +636,41 @@ function formatNumber(value){
 }
 
 
-/* =====================================================
-   ACTUALIZAR PANTALLA
-===================================================== */
+/* ==========================================
+   PANTALLA
+========================================== */
 
 function updateDisplay(){
 
   if(current === "Error"){
 
-    resultEl.textContent = "Error";
+    resultEl.textContent =
+      "Error";
 
-  }else if(current.includes(".")){
+  }
+  else if(current.includes(".")){
 
     resultEl.textContent =
       current.replace(".",",");
 
-  }else{
+  }
+  else{
 
     resultEl.textContent =
-      formatNumber(Number(current));
+      formatNumber(
+        Number(current)
+      );
   }
+
 
   expressionEl.textContent =
     expressionParts.join(" ");
 }
 
 
-/* =====================================================
+/* ==========================================
    NÚMEROS
-===================================================== */
+========================================== */
 
 function number(num){
 
@@ -543,13 +703,15 @@ function number(num){
 
     waitingForOperand = false;
 
-  }else{
+  }
+  else{
 
     if(current === "0"){
 
       current = num;
 
-    }else{
+    }
+    else{
 
       current += num;
     }
@@ -560,9 +722,9 @@ function number(num){
 }
 
 
-/* =====================================================
+/* ==========================================
    DECIMAL
-===================================================== */
+========================================== */
 
 function decimal(){
 
@@ -595,7 +757,8 @@ function decimal(){
 
     waitingForOperand = false;
 
-  }else if(!current.includes(".")){
+  }
+  else if(!current.includes(".")){
 
     current += ".";
   }
@@ -605,9 +768,64 @@ function decimal(){
 }
 
 
-/* =====================================================
+/* ==========================================
+   BORRAR ÚLTIMO DÍGITO
+========================================== */
+
+function deleteLast(){
+
+  /*
+    Si estamos en modo mágico y el usuario
+    quiere borrar, salimos del modo mágico.
+  */
+
+  if(magicMode){
+
+    magicMode = false;
+
+    magicBase = null;
+
+    magicMissing = null;
+
+    magicTarget = null;
+
+    magicTargetString = null;
+
+    equalsStage = 0;
+  }
+
+
+  if(
+    waitingForOperand ||
+    current === "Error"
+  ){
+
+    return;
+  }
+
+
+  if(current.length <= 1){
+
+    current = "0";
+
+  }
+  else{
+
+    current =
+      current.slice(
+        0,
+        -1
+      );
+  }
+
+
+  updateDisplay();
+}
+
+
+/* ==========================================
    OPERADORES
-===================================================== */
+========================================== */
 
 function operator(op){
 
@@ -639,9 +857,12 @@ function operator(op){
 
     currentOperator = op;
 
+
     expressionParts[
       expressionParts.length - 1
-    ] = operatorSymbol(op);
+    ] =
+      operatorSymbol(op);
+
 
     updateDisplay();
 
@@ -653,7 +874,8 @@ function operator(op){
 
     previous = value;
 
-  }else if(currentOperator){
+  }
+  else if(currentOperator){
 
     const calculated =
       calculate(
@@ -661,6 +883,7 @@ function operator(op){
         value,
         currentOperator
       );
+
 
     current =
       String(calculated);
@@ -707,9 +930,9 @@ function operator(op){
 }
 
 
-/* =====================================================
+/* ==========================================
    SÍMBOLOS
-===================================================== */
+========================================== */
 
 function operatorSymbol(op){
 
@@ -725,9 +948,9 @@ function operatorSymbol(op){
 }
 
 
-/* =====================================================
+/* ==========================================
    CÁLCULO
-===================================================== */
+========================================== */
 
 function calculate(a,b,op){
 
@@ -749,24 +972,23 @@ function calculate(a,b,op){
 }
 
 
-/* =====================================================
+/* ==========================================
    IGUAL
-===================================================== */
+========================================== */
 
 function equals(){
 
-  /*
-   * =========================================
-   * MODO MÁGICO
-   *
-   * TERCER =
-   * =========================================
-   */
+
+  /* ----------------------------------------
+     TERCER =
+     FINAL DEL TRUCO
+  ---------------------------------------- */
 
   if(magicMode){
 
     const finalResult =
-      magicBase + magicMissing;
+      magicBase +
+      magicMissing;
 
 
     current =
@@ -789,13 +1011,14 @@ function equals(){
 
 
     /*
-     * NO SE ESCRIBE NADA
-     * EN EL HISTORIAL.
-     */
+      MUY IMPORTANTE:
+      aquí NO tocamos el historial.
+    */
 
 
     accumulatedTotal =
       finalResult;
+
 
     magicMode = false;
 
@@ -823,13 +1046,12 @@ function equals(){
   }
 
 
-  /*
-   * =========================================
-   * PRIMER =
-   * =========================================
-   */
+  /* ----------------------------------------
+     PRIMER =
+  ---------------------------------------- */
 
   if(equalsStage === 0){
+
 
     document
       .querySelectorAll(".operator")
@@ -846,8 +1068,10 @@ function equals(){
       const operand =
         Number(current);
 
+
       const oldPrevious =
         previous;
+
 
       const result =
         calculate(
@@ -858,22 +1082,18 @@ function equals(){
 
 
       /*
-       * Creamos una entrada independiente
-       * para poder eliminar SOLO esta
-       * cuando se pulse el segundo "=".
-       */
+        CREAMOS UNA ENTRADA INDIVIDUAL.
+
+        No se vuelve a escribir todo
+        el historial.
+      */
 
       const historyEntry =
         document.createElement("div");
 
 
-      historyEntry.innerHTML = `
-        ${formatNumber(oldPrevious)}
-        ${operatorSymbol(currentOperator)}
-        ${formatNumber(operand)}
-        =
-        ${formatNumber(result)}
-      `;
+      historyEntry.textContent =
+        `${formatNumber(oldPrevious)} ${operatorSymbol(currentOperator)} ${formatNumber(operand)} = ${formatNumber(result)}`;
 
 
       historyEl.appendChild(
@@ -882,9 +1102,8 @@ function equals(){
 
 
       /*
-       * Guardamos la referencia
-       * únicamente de la última operación.
-       */
+        Guardamos únicamente esta entrada.
+      */
 
       lastEqualsHistoryEntry =
         historyEntry;
@@ -909,7 +1128,8 @@ function equals(){
 
       updateDisplay();
 
-    }else{
+    }
+    else{
 
       accumulatedTotal =
         Number(current);
@@ -924,13 +1144,10 @@ function equals(){
   }
 
 
-  /*
-   * =========================================
-   * SEGUNDO =
-   *
-   * ACTIVA EL TRUCO.
-   * =========================================
-   */
+  /* ----------------------------------------
+     SEGUNDO =
+     ACTIVAR TRUCO
+  ---------------------------------------- */
 
   if(equalsStage === 1){
 
@@ -943,9 +1160,9 @@ function equals(){
 }
 
 
-/* =====================================================
+/* ==========================================
    FECHA Y HORA
-===================================================== */
+========================================== */
 
 function getTarget(){
 
@@ -1005,11 +1222,12 @@ function getTarget(){
 }
 
 
-/* =====================================================
+/* ==========================================
    ACTIVAR TRUCO
-===================================================== */
+========================================== */
 
 function ejecutarTruco(){
+
 
   let currentTotal =
     Number(accumulatedTotal);
@@ -1029,9 +1247,9 @@ function ejecutarTruco(){
 
 
   /*
-   * Capturamos la fecha y hora
-   * exactamente al activar el truco.
-   */
+    CAPTURAMOS LA FECHA Y HORA
+    EN EL MOMENTO EXACTO DEL DOBLE =.
+  */
 
   const target =
     getTarget();
@@ -1041,18 +1259,10 @@ function ejecutarTruco(){
     target.number;
 
 
-  /*
-   * Calculamos cuánto falta.
-   */
-
   const missing =
-    targetNumber - currentTotal;
+    targetNumber -
+    currentTotal;
 
-
-  /*
-   * Si ya se ha superado el objetivo,
-   * no activamos el truco.
-   */
 
   if(missing < 0){
 
@@ -1065,27 +1275,38 @@ function ejecutarTruco(){
 
 
   /*
-   * =========================================
-   * IMPORTANTE:
-   *
-   * SOLO eliminamos la ÚLTIMA operación
-   * del historial.
-   *
-   * Todo lo anterior permanece visible.
-   * =========================================
-   */
+    ========================================
+    AQUÍ ESTÁ LA CORRECCIÓN IMPORTANTE
+    ========================================
 
-  if(lastEqualsHistoryEntry){
+    NO usamos:
 
-    lastEqualsHistoryEntry.remove();
+      historyEl.innerHTML = "";
+
+    NO borramos el historial entero.
+
+    NO reconstruimos el historial.
+
+    ÚNICAMENTE eliminamos la última
+    entrada que se creó con el primer =.
+  */
+
+  if(
+    lastEqualsHistoryEntry &&
+    lastEqualsHistoryEntry.parentNode === historyEl
+  ){
+
+    historyEl.removeChild(
+      lastEqualsHistoryEntry
+    );
 
     lastEqualsHistoryEntry = null;
   }
 
 
   /*
-   * Guardamos los datos secretos.
-   */
+    GUARDAMOS LOS DATOS DEL TRUCO.
+  */
 
   magicMode = true;
 
@@ -1103,13 +1324,11 @@ function ejecutarTruco(){
 
 
   /*
-   * La pantalla muestra solamente
-   * el número que falta.
-   */
+    MOSTRAMOS EL NÚMERO QUE FALTA.
+  */
 
   current =
     String(missing);
-
 
   previous = null;
 
@@ -1127,9 +1346,9 @@ function ejecutarTruco(){
 }
 
 
-/* =====================================================
+/* ==========================================
    AC
-===================================================== */
+========================================== */
 
 function clearAll(){
 
@@ -1162,7 +1381,13 @@ function clearAll(){
   lastEqualsHistoryEntry = null;
 
 
+  /*
+    AC SÍ puede borrar todo el historial,
+    porque este es el botón de borrar todo.
+  */
+
   historyEl.innerHTML = "";
+
 
   expressionEl.textContent = "";
 
@@ -1177,9 +1402,9 @@ function clearAll(){
 }
 
 
-/* =====================================================
+/* ==========================================
    +/-
-===================================================== */
+========================================== */
 
 function toggleSign(){
 
@@ -1195,7 +1420,8 @@ function toggleSign(){
     current =
       current.substring(1);
 
-  }else{
+  }
+  else{
 
     current =
       "-" + current;
@@ -1206,9 +1432,9 @@ function toggleSign(){
 }
 
 
-/* =====================================================
+/* ==========================================
    %
-===================================================== */
+========================================== */
 
 function percent(){
 
@@ -1227,31 +1453,37 @@ function percent(){
 }
 
 
-/* =====================================================
+/* ==========================================
    AVISO
-===================================================== */
+========================================== */
 
 function showNotice(text){
 
   notice.textContent =
     text;
 
-  notice.classList.add("show");
+
+  notice.classList.add(
+    "show"
+  );
 
 
   setTimeout(()=>{
-    notice.classList.remove("show");
+    notice.classList.remove(
+      "show"
+    );
   },2500);
 }
 
 
-/* =====================================================
+/* ==========================================
    TECLADO FÍSICO
-===================================================== */
+========================================== */
 
 document.addEventListener(
   "keydown",
   function(e){
+
 
     if(
       e.key >= "0" &&
@@ -1303,23 +1535,36 @@ document.addEventListener(
     }
 
 
-    if(e.key === "Escape"){
+    if(
+      e.key === "Escape"
+    ){
 
       clearAll();
     }
 
 
-    if(e.key === "%"){
+    if(
+      e.key === "%"
+    ){
 
       percent();
     }
+
+
+    if(
+      e.key === "Backspace"
+    ){
+
+      deleteLast();
+    }
+
   }
 );
 
 
-/* =====================================================
+/* ==========================================
    INICIO
-===================================================== */
+========================================== */
 
 updateDisplay();
 
